@@ -4,7 +4,7 @@ import { useNexus } from '../store.js';
 import { nexus } from '../utils/nexus.js';
 import { sfx } from '../hooks/useSound.js';
 
-// En LITE no se dibujan aristas (como en la referencia).
+// En LITE no se dibujan aristas para aligerar el render.
 export const useLite = () => useNexus((s) => s.tier !== 'high');
 
 // Tiempo de animación: con reduced motion las animaciones quedan congeladas en t=1.

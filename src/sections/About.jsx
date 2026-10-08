@@ -18,13 +18,11 @@ export default function About() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '112px minmax(0,1fr)', gap: 16, alignItems: 'end' }}>
-        
-          <img
-            src="/about.jpeg"
-            alt="Linda Sofia Moreno"
-            style={{width:'100%', aspectRatio:'3/4', objectFit: 'cover', border: '1px solid rgba(110,160,255,.3)', display:'block'  }}
-          />
-       
+        <img
+          src="/about.jpeg"
+          alt="Linda Sofia Moreno"
+          style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', border: '1px solid rgba(110,160,255,.3)', display: 'block' }}
+        />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <h2 style={{ margin: 0, font: '600 17px/1.5 Oxanium, sans-serif', letterSpacing: '.34em' }}>L I N D A<br />S O F I A<br />M O R E N O</h2>
           <div style={{ font: '600 10px/1 Oxanium, sans-serif', letterSpacing: '.3em', color: '#4d8dff' }}>{PROFILE.role}</div>

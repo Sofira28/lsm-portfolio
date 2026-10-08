@@ -113,7 +113,7 @@ function useBob() {
   return av;
 }
 
-// Placeholder: cápsula holográfica + pelo burdeos + gafas (reemplazar por avatar.glb).
+// Avatar de respaldo (sin GLB o si falla la carga): cápsula holográfica + pelo burdeos + gafas.
 function HoloAvatar() {
   const av = useBob();
   const holo = useMemo(() => new THREE.MeshBasicMaterial({ color: 0x6fe3ff, wireframe: true, transparent: true, opacity: 0.3 }), []);
@@ -204,6 +204,6 @@ if (CONFIG.avatarUrl) useGLTF.preload(CONFIG.avatarUrl);
 class AvatarBoundary extends Component {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
-  componentDidCatch(e) { console.warn('[nexus] avatar.glb no disponible, usando placeholder: ' + (e?.message || e)); }
+  componentDidCatch(e) { console.warn('[nexus] avatar GLB no disponible, usando respaldo holográfico: ' + (e?.message || e)); }
   render() { return this.state.failed ? this.props.fallback : this.props.children; }
 }
