@@ -88,6 +88,7 @@ export const PROJECTS = [
       { g: 'FRONTEND · cartoon-pizza-web', items: ['HTML', 'CSS', 'JavaScript', 'Bootstrap', 'Socket.IO client', 'SheetJS', 'jsPDF', 'Vercel'] }
     ],
     role: 'Proyecto personal', method: null,
+    site: 'https://cartoon-pizza-web.vercel.app',
     repo: { state: 'PRIVATE', note: 'Repositorios personales privados (api + web). Acceso bajo solicitud.' }, arch: 'pizza'
   },
   {
