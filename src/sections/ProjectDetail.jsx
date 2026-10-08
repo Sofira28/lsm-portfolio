@@ -41,7 +41,8 @@ export default function ProjectDetail() {
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {cur.arch && <button className="btn-primary" onClick={() => openArch(cur.arch)} style={{ fontSize: 10 }}>{t('detail.arch')}</button>}
-        <a className="btn-outline" href={PROFILE.github} target="_blank" rel="noopener" style={{ fontSize: 10, borderColor: 'rgba(110,160,255,.3)' }}>
+        {cur.site && <a className="btn-outline" href={cur.site} target="_blank" rel="noopener" style={{ fontSize: 10, borderColor: 'rgba(110,160,255,.3)' }}>{t('detail.site')}</a>}
+        <a className="btn-outline" href={cur.repo.url || PROFILE.github} target="_blank" rel="noopener" style={{ fontSize: 10, borderColor: 'rgba(110,160,255,.3)' }}>
           {t('detail.github')}{' '}
           <span style={{ font: '600 8px/1 Oxanium, sans-serif', letterSpacing: '.18em', padding: '3px 6px', background: 'rgba(255,255,255,.06)', color: cur.repo.state === 'PRIVATE' ? '#ffb38a' : '#9aabc9' }}>{t('repo.' + cur.repo.state)}</span>
         </a>

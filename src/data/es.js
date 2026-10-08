@@ -124,7 +124,8 @@ export const PROJECTS = [
       { g: 'LANDING', items: ['Astro', 'TypeScript', 'HTML', 'CSS'] }
     ],
     role: 'Desarrollado dentro de la organización MNT-2026', method: null,
-    repo: { state: 'ORGANIZATION', note: 'Proyecto de la organización MNT-2026. Enlace pendiente de confirmar.' }, arch: 'simav'
+    site: 'https://landing-project-neon.vercel.app',
+    repo: { state: 'ORGANIZATION', url: 'https://github.com/MNT-2026', note: 'Proyecto de la organización MNT-2026 en GitHub.' }, arch: 'simav'
   },
   {
     id: 'zytime', code: 'EXP.006', name: 'ZYTIME', type: 'TEAM', kind: 'PLATAFORMA DE AGENDAMIENTO · BACKEND', world: 'SALA DE CONTROL', color: '#7ae3ff',
