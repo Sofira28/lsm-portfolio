@@ -20,7 +20,7 @@ export default function ModeSwitch() {
         <button role="radio" aria-checked={mode === 'exploration'} onClick={() => setMode('exploration')} style={modeBtn(mode === 'exploration')}>EXPLORATION</button>
         <button role="radio" aria-checked={mode === 'system'} onClick={() => setMode('system')} style={modeBtn(mode === 'system')}>SYSTEM</button>
       </div>
-      <div style={{ font: '500 10px/1.5 Oxanium, sans-serif', letterSpacing: '.14em', color: '#6f82a8', maxWidth: 340 }}>{hint}</div>
+      <div style={{ font: '500 10px/1.5 Oxanium, sans-serif', letterSpacing: '.14em', color: '#6f82a8', maxWidth: 'min(340px, calc(100vw - 470px))' }}>{hint}</div>
     </div>
   );
 }

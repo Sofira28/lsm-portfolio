@@ -10,6 +10,14 @@ let toastTimer = null;
 let probePromise = Promise.resolve('2d');
 export const setProbePromise = (p) => { probePromise = p; };
 
+// isMobile: HUD táctil (dock, bottom sheet, joystick); incluye teléfonos en horizontal.
+// compact: no cabe la barra de herramientas completa → menú ⋯ (tablets, portátiles pequeños).
+function viewport() {
+  if (typeof window === 'undefined') return { isMobile: false, compact: false };
+  const w = window.innerWidth, h = window.innerHeight;
+  return { isMobile: w < 760 || h < 500, compact: w < 1100 || h < 500 };
+}
+
 export const useNexus = create((set, get) => ({
   phase: 'boot', // boot | world
   bootLines: [],
@@ -22,7 +30,8 @@ export const useNexus = create((set, get) => ({
   tier: 'high',
   sound: false,
   reduced: false,
-  isMobile: typeof window !== 'undefined' ? window.innerWidth < 760 : false,
+  ...viewport(),
+  intro: true, // tarjeta de presentación visible (se puede cerrar)
   filter: 'ALL',
   cat: 1,
   tech: null,
@@ -116,7 +125,11 @@ export const useNexus = create((set, get) => ({
   },
   toggleMotion() { set({ reduced: !get().reduced }); },
   toggleSettings() { set({ settings: !get().settings }); },
-  setIsMobile(m) { if (m !== get().isMobile) set({ isMobile: m }); },
+  setViewport() {
+    const v = viewport(), s = get();
+    if (v.isMobile !== s.isMobile || v.compact !== s.compact) set(v);
+  },
+  setIntro(intro) { set({ intro }); sfx(intro ? 'open' : 'close'); },
 
   openResume() {
     if (CONFIG.resumeUrl) window.open(CONFIG.resumeUrl, '_blank', 'noopener');

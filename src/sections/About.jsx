@@ -24,7 +24,7 @@ export default function About() {
           style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', border: '1px solid rgba(110,160,255,.3)', display: 'block' }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <h2 style={{ margin: 0, font: '600 17px/1.5 Oxanium, sans-serif', letterSpacing: '.34em' }}>L I N D A<br />S O F I A<br />M O R E N O</h2>
+          <h2 style={{ margin: 0, font: '600 clamp(13px,4.2vw,17px)/1.5 Oxanium, sans-serif', letterSpacing: 'clamp(.16em,1vw,.34em)' }}>L I N D A<br />S O F I A<br />M O R E N O</h2>
           <div style={{ font: '600 10px/1 Oxanium, sans-serif', letterSpacing: '.3em', color: '#4d8dff' }}>{PROFILE.role}</div>
         </div>
       </div>

@@ -46,6 +46,7 @@ export default function App() {
   const mode = useNexus((s) => s.mode);
   const panel = useNexus((s) => s.panel);
   const secret = useNexus((s) => s.secret);
+  const intro = useNexus((s) => s.intro);
   useKeyboard();
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function App() {
       useNexus.setState({ bootDone: true });
       setTimeout(() => useNexus.getState().enter(false, true), 50);
     } else stop = runBoot(t, reducedPref);
-    const onResize = () => useNexus.getState().setIsMobile(innerWidth < 760);
+    const onResize = () => useNexus.getState().setViewport();
     addEventListener('resize', onResize);
     return () => { stop(); removeEventListener('resize', onResize); };
   }, []);
@@ -94,7 +95,7 @@ export default function App() {
           {!isMobile && <MenuRail />}
           {!isMobile && <ModeSwitch />}
           {!panel && !secret && <IntroCard />}
-          {isMobile && mode === 'exploration' && !panel && !is2D && <Joystick />}
+          {isMobile && mode === 'exploration' && !panel && !intro && !is2D && <Joystick />}
           {isMobile && <MobileDock />}
           <Panel />
         </div>

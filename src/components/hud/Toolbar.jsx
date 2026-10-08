@@ -5,8 +5,10 @@ import { PROFILE } from '../../data/projectsData.js';
 import { nexus } from '../../utils/nexus.js';
 import { TIER_LABEL, TIER_NEXT } from '../../hooks/usePerfTier.js';
 
+// Completa en escritorio ancho; en pantallas compactas: CV · GH · ⋯ (ajustes en SettingsPopover).
 export default function Toolbar() {
   const isMobile = useNexus((s) => s.isMobile);
+  const compact = useNexus((s) => s.compact);
   const sound = useNexus((s) => s.sound);
   const reduced = useNexus((s) => s.reduced);
   const tier = useNexus((s) => s.tier);
@@ -22,8 +24,8 @@ export default function Toolbar() {
   const motionLabel = reduced ? 'MOTION: REDUCED' : 'MOTION: FULL';
 
   return (
-    <div style={{ position: 'absolute', top: 18, right: 20, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'auto' }}>
-      {!isMobile ? (
+    <div style={{ position: 'absolute', top: isMobile ? 12 : 18, right: isMobile ? 12 : 20, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'auto' }}>
+      {!compact ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <button className="btn-resume" onClick={S.openResume}>↓ RESUME</button>
           <a className="btn-link" href={PROFILE.github} target="_blank" rel="noopener">GITHUB ↗</a>
@@ -39,8 +41,8 @@ export default function Toolbar() {
         </div>
       ) : (
         <div style={{ display: 'flex', gap: 6 }}>
-          <button className="btn-resume" onClick={S.openResume} style={{ height: 44, letterSpacing: '.18em' }}>CV</button>
-          <a className="btn-link" href={PROFILE.github} target="_blank" rel="noopener" style={{ height: 44, letterSpacing: '.18em' }}>GH ↗</a>
+          <button className="btn-resume" onClick={S.openResume} aria-label="Descargar CV" style={{ height: 44, minWidth: 44, padding: '0 10px', letterSpacing: '.14em' }}>CV</button>
+          <a className="btn-link" href={PROFILE.github} target="_blank" rel="noopener" aria-label="GitHub" style={{ height: 44, minWidth: 44, padding: '0 10px', justifyContent: 'center', letterSpacing: '.14em' }}>GH ↗</a>
           <button
             onClick={S.toggleSettings}
             aria-label="Ajustes"
@@ -56,7 +58,8 @@ export default function Toolbar() {
 }
 
 export function SettingsPopover() {
-  const open = useNexus((s) => s.settings && s.isMobile);
+  const open = useNexus((s) => s.settings && s.compact);
+  const isMobile = useNexus((s) => s.isMobile);
   const sound = useNexus((s) => s.sound);
   const reduced = useNexus((s) => s.reduced);
   const tier = useNexus((s) => s.tier);
@@ -64,7 +67,7 @@ export function SettingsPopover() {
   const S = useNexus.getState();
   if (!open) return null;
   return (
-    <div style={{ position: 'absolute', top: 72, right: 12, display: 'flex', flexDirection: 'column', gap: 6, padding: 10, background: 'rgba(5,9,22,.92)', border: '1px solid rgba(110,160,255,.22)', pointerEvents: 'auto', zIndex: 30, animation: 'nxIn .3s ease both' }}>
+    <div style={{ position: 'absolute', top: isMobile ? 64 : 70, right: isMobile ? 12 : 20, display: 'flex', flexDirection: 'column', gap: 6, padding: 10, background: 'rgba(5,9,22,.92)', border: '1px solid rgba(110,160,255,.22)', pointerEvents: 'auto', zIndex: 30, animation: 'nxIn .3s ease both' }}>
       <button className="btn-sheet" onClick={S.toggleSound}>{sound ? 'SOUND: ON' : 'SOUND: OFF'}</button>
       <button className="btn-sheet" onClick={S.toggleMotion}>{reduced ? 'MOTION: REDUCED' : 'MOTION: FULL'}</button>
       <button className="btn-sheet" onClick={() => S.setTier(TIER_NEXT[tier])}>RENDER: {TIER_LABEL[tier]}</button>

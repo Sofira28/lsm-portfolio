@@ -16,15 +16,15 @@ export default function BootScreen() {
       role="dialog"
       aria-label="Inicio del sistema"
       style={{
-        position: 'absolute', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+        position: 'absolute', inset: 0, zIndex: 50, display: 'flex', overflowY: 'auto', padding: 24,
         background: 'radial-gradient(ellipse at center, rgba(3,6,16,.55) 0%, rgba(2,4,11,.9) 70%)',
         transition: 'opacity .75s ease, transform .9s cubic-bezier(.6,0,.2,1), filter .75s',
         opacity: bootExit ? 0 : 1, transform: bootExit ? 'scale(1.12)' : 'none', filter: bootExit ? 'blur(12px)' : 'none',
         pointerEvents: bootExit ? 'none' : 'auto'
       }}
     >
-      <div style={{ width: 'min(560px,100%)', display: 'flex', flexDirection: 'column', gap: 28 }}>
-        <div aria-live="polite" style={{ display: 'flex', flexDirection: 'column', gap: 6, minHeight: 190, font: '500 13px/1.5 ui-monospace, Menlo, Consolas, monospace' }}>
+      <div style={{ width: 'min(560px,100%)', margin: 'auto', display: 'flex', flexDirection: 'column', gap: 'clamp(16px,4vh,28px)' }}>
+        <div aria-live="polite" style={{ display: 'flex', flexDirection: 'column', gap: 6, minHeight: 'min(190px,30vh)', font: '500 13px/1.5 ui-monospace, Menlo, Consolas, monospace' }}>
           {bootLines.map((b, i) => (
             <div key={i} style={{ color: LINE_COLOR[b.t], letterSpacing: '.06em', animation: 'nxFade .3s ease both' }}>{b.s}</div>
           ))}

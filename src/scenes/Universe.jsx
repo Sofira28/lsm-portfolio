@@ -184,8 +184,8 @@ function LabelProjector() {
       if (v.z > 1 || Math.abs(v.x) > 1.2 || Math.abs(v.y) > 1.2) return hide();
       const x = (v.x * 0.5 + 0.5) * W, y = (-v.y * 0.5 + 0.5) * H, ly = y - 20;
       const inHud = s.isMobile
-        ? ly < 80 || y > H - 64
-        : ly < 72 || (x < 250 && Math.abs(y - H / 2) < 190) || (x < 400 && y > H - 100) || (!s.panel && x > W - 440 && y > H - 340);
+        ? ly < 72 || y > H - 64 || (s.intro && !s.panel && ly < 340)
+        : ly < 72 || (x < 250 && Math.abs(y - H / 2) < 190) || (x < 400 && y > H - 100) || (s.intro && !s.panel && x > W - 440 && y > H - 340);
       if (inHud) return hide();
       el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) translate(-50%,-100%)`;
       const sel = id === nexus.selected || id === nexus.hoverId;
