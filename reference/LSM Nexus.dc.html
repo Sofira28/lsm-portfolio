@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;height:100%;background:#02040b;color:#e6edfb;overflow:hidden}
+a{color:#6fe3ff;text-decoration:none}a:hover{color:#e6edfb}
+button,input{font-family:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #6fe3ff;outline-offset:3px}
+::selection{background:#4d8dff;color:#fff}
+@keyframes nxIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes nxFade{from{opacity:0}to{opacity:1}}
+@keyframes nxBlink{50%{opacity:0}}
+@keyframes nxPulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes nxLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+*::-webkit-scrollbar{width:6px}*::-webkit-scrollbar-thumb{background:#1d2c52}
+</style>
+</helmet>
+<div style="position:fixed;inset:0;background:#02040b;color:#e6edfb;font-family:Manrope, sans-serif;overflow:hidden">
+
+  <div ref="{{ canvasHost }}" style="{{ canvasStyle }}"></div>
+
+  <sc-if value="{{ show2D }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%, #0a1734 0%, #040817 55%, #02040b 100%);display:flex;align-items:center;justify-content:center">
+      <div style="position:relative;width:min(78vmin,640px);aspect-ratio:1">
+        <div style="position:absolute;inset:12%;border:1px solid rgba(110,160,255,.22);border-radius:50%"></div>
+        <div style="position:absolute;inset:30%;border:1px dashed rgba(110,160,255,.16);border-radius:50%"></div>
+        <button onClick="{{ openAbout }}" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;background:#071230;border:1px solid #4d8dff;color:#e6edfb;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 0 40px rgba(77,141,255,.25)">
+          <span style="font:700 22px/1 Oxanium, sans-serif;letter-spacing:.2em">LSM</span>
+          <span style="font:600 8px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#6fe3ff">CORE</span>
+        </button>
+        <sc-for list="{{ nodes2D }}" as="n" hint-placeholder-count="0">
+          <button onClick="{{ n.onClick }}" style="{{ n.style }}">
+            <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.22em;color:#9aabc9">{{ n.code }}</span>
+            <span style="font:600 12px/1.2 Oxanium, sans-serif;letter-spacing:.14em">{{ n.name }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="position:absolute;left:50%;bottom:90px;transform:translateX(-50%);font:600 10px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#8597ba;white-space:nowrap">PERFORMANCE MODE · 2D ORBITAL MAP</div>
+    </div>
+  </sc-if>
+
+  <div ref="{{ labelLayer }}" style="{{ labelLayerStyle }}">
+    <sc-for list="{{ labels }}" as="l" hint-placeholder-count="0">
+      <button data-lid="{{ l.id }}" onClick="{{ l.onClick }}" aria-label="{{ l.aria }}" style="position:absolute;left:0;top:0;transform:translate3d(-9999px,0,0);pointer-events:auto;background:rgba(4,8,20,.6);border:1px solid rgba(110,160,255,.28);color:#e6edfb;padding:6px 10px 7px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;cursor:pointer;white-space:nowrap;backdrop-filter:blur(6px);transition:border-color .3s, opacity .3s">
+        <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.22em;color:#6fe3ff">{{ l.code }}</span>
+        <span style="font:600 11px/1 Oxanium, sans-serif;letter-spacing:.18em">{{ l.name }}</span>
+      </button>
+    </sc-for>
+  </div>
+
+  <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);mix-blend-mode:screen"></div>
+  <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%)"></div>
+
+  <sc-if value="{{ arrived }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;pointer-events:none;animation:nxFade .8s ease both">
+
+      <div style="position:absolute;top:20px;left:22px;display:flex;flex-direction:column;gap:7px;pointer-events:auto">
+        <button onClick="{{ goHome }}" aria-label="LSM Nexus — volver a la vista general" style="background:none;border:0;padding:0;color:#e6edfb;font:600 15px/1 Oxanium, sans-serif;letter-spacing:.3em;cursor:pointer;text-align:left">LSM <span style="color:#4d8dff">//</span> NEXUS</button>
+        <div style="display:flex;align-items:center;gap:8px;font:500 10px/1 Oxanium, sans-serif;letter-spacing:.2em;color:#9aabc9">
+          <span style="width:6px;height:6px;border-radius:50%;background:#5ff0b0;box-shadow:0 0 8px #5ff0b0;animation:nxPulse 2.4s ease-in-out infinite"></span>
+          <span>SYSTEM: ONLINE</span><span style="color:#33456e">|</span><span>MODE: {{ modeLabel }}</span>
+        </div>
+      </div>
+
+      <div style="position:absolute;top:18px;right:20px;display:flex;align-items:center;gap:6px;pointer-events:auto">
+        <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:6px">
+            <button onClick="{{ openResume }}" style="height:32px;padding:0 12px;background:rgba(77,141,255,.14);border:1px solid rgba(77,141,255,.55);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.2em;cursor:pointer" style-hover="background:rgba(77,141,255,.28)">↓ RESUME</button>
+            <a href="https://github.com/Sofira28" target="_blank" rel="noopener" style="height:32px;padding:0 12px;display:flex;align-items:center;border:1px solid rgba(110,160,255,.25);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.2em" style-hover="border-color:#6fe3ff">GITHUB ↗</a>
+            <span style="width:1px;height:20px;background:rgba(110,160,255,.2);margin:0 4px"></span>
+            <button onClick="{{ toggleSound }}" aria-pressed="{{ soundPressed }}" style="height:32px;padding:0 10px;background:none;border:1px solid rgba(110,160,255,.18);color:#9aabc9;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;cursor:pointer">{{ soundLabel }}</button>
+            <button onClick="{{ toggleMotion }}" aria-pressed="{{ motionPressed }}" style="height:32px;padding:0 10px;background:none;border:1px solid rgba(110,160,255,.18);color:#9aabc9;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;cursor:pointer">{{ motionLabel }}</button>
+            <button onClick="{{ cycleTier }}" title="Cambiar perfil de render" style="height:32px;padding:0 10px;background:none;border:1px solid rgba(110,160,255,.18);color:#9aabc9;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;cursor:pointer">RENDER: {{ tierLabel }}</button>
+            <sc-if value="{{ showFps }}" hint-placeholder-val="{{ false }}">
+              <span style="font:500 10px/1 Oxanium, sans-serif;letter-spacing:.18em;color:#6f82a8;padding-left:4px">FPS <span ref="{{ fpsRef }}" style="color:#9aabc9">--</span></span>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:6px">
+            <button onClick="{{ openResume }}" style="height:44px;padding:0 12px;background:rgba(77,141,255,.14);border:1px solid rgba(77,141,255,.55);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em">CV</button>
+            <a href="https://github.com/Sofira28" target="_blank" rel="noopener" style="height:44px;padding:0 12px;display:flex;align-items:center;border:1px solid rgba(110,160,255,.25);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em">GH ↗</a>
+            <button onClick="{{ toggleSettings }}" aria-label="Ajustes" style="width:44px;height:44px;background:none;border:1px solid rgba(110,160,255,.25);color:#e6edfb;font:600 14px/1 Oxanium, sans-serif">⋯</button>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ settingsOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:72px;right:12px;display:flex;flex-direction:column;gap:6px;padding:10px;background:rgba(5,9,22,.92);border:1px solid rgba(110,160,255,.22);pointer-events:auto;z-index:30;animation:nxIn .3s ease both">
+          <button onClick="{{ toggleSound }}" style="height:44px;padding:0 14px;background:none;border:1px solid rgba(110,160,255,.18);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;text-align:left">{{ soundLabel }}</button>
+          <button onClick="{{ toggleMotion }}" style="height:44px;padding:0 14px;background:none;border:1px solid rgba(110,160,255,.18);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;text-align:left">{{ motionLabel }}</button>
+          <button onClick="{{ cycleTier }}" style="height:44px;padding:0 14px;background:none;border:1px solid rgba(110,160,255,.18);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;text-align:left">RENDER: {{ tierLabel }}</button>
+          <button onClick="{{ toggleMode }}" style="height:44px;padding:0 14px;background:none;border:1px solid rgba(110,160,255,.18);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;text-align:left">MODE: {{ modeLabel }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+        <nav aria-label="Menú NEXUS" style="position:absolute;left:22px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:2px;pointer-events:auto">
+          <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#4d8dff;margin-bottom:10px">SYSTEM MENU</div>
+          <sc-for list="{{ menu }}" as="m" hint-placeholder-count="6">
+            <button onClick="{{ m.onClick }}" aria-current="{{ m.current }}" style="{{ m.style }}">
+              <span style="{{ m.bar }}"></span>
+              <span style="color:#4d6290;font-size:9px">{{ m.num }}</span>
+              <span>{{ m.label }}</span>
+            </button>
+          </sc-for>
+        </nav>
+        <div style="position:absolute;left:22px;bottom:20px;display:flex;flex-direction:column;gap:10px;pointer-events:auto">
+          <div role="radiogroup" aria-label="Modo de navegación" style="display:flex;border:1px solid rgba(110,160,255,.22)">
+            <button role="radio" aria-checked="{{ isExplore }}" onClick="{{ setExplore }}" style="{{ modeBtnA }}">EXPLORATION</button>
+            <button role="radio" aria-checked="{{ isSystem }}" onClick="{{ setSystem }}" style="{{ modeBtnB }}">SYSTEM</button>
+          </div>
+          <div style="font:500 10px/1.5 Oxanium, sans-serif;letter-spacing:.14em;color:#6f82a8;max-width:340px">{{ controlsHint }}</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showIntro }}" hint-placeholder-val="{{ false }}">
+        <section aria-label="Introducción" style="{{ introStyle }}">
+          <div style="display:flex;align-items:center;gap:10px;font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#6fe3ff"><span style="width:18px;height:1px;background:#6fe3ff"></span>NEXUS INITIALIZED</div>
+          <h1 style="margin:0;font:600 19px/1.35 Oxanium, sans-serif;letter-spacing:.32em;color:#e6edfb">LINDA SOFIA MORENO</h1>
+          <div style="font:600 11px/1 Oxanium, sans-serif;letter-spacing:.3em;color:#4d8dff">SYSTEMS ENGINEER</div>
+          <p style="margin:0;font:500 15px/1.55 Manrope, sans-serif;color:#c7d3ea;text-wrap:pretty">Construyo sistemas, experiencias y productos digitales — web, backend, mobile, IA y tiempo real.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.18em;padding:6px 8px;border:1px solid rgba(110,160,255,.25);color:#9aabc9">FULL STACK</span>
+            <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.18em;padding:6px 8px;border:1px solid rgba(110,160,255,.25);color:#9aabc9">CLOUD / DEVOPS</span>
+            <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.18em;padding:6px 8px;border:1px solid rgba(110,160,255,.25);color:#9aabc9">MOBILE</span>
+            <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.18em;padding:6px 8px;border:1px solid rgba(110,160,255,.25);color:#9aabc9">CREATIVE TECHNOLOGY</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+            <button onClick="{{ openProjects }}" style="min-height:44px;padding:0 16px;background:#4d8dff;border:0;color:#02040b;font:700 11px/1 Oxanium, sans-serif;letter-spacing:.2em;cursor:pointer" style-hover="background:#6fe3ff">[ ACCESS PROJECTS · 06 ]</button>
+            <button onClick="{{ openAbout }}" style="min-height:44px;padding:0 14px;background:none;border:1px solid rgba(110,160,255,.35);color:#e6edfb;font:600 11px/1 Oxanium, sans-serif;letter-spacing:.2em;cursor:pointer" style-hover="border-color:#6fe3ff">ABOUT</button>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ showJoy }}" hint-placeholder-val="{{ false }}">
+        <div onPointerDown="{{ joyDown }}" onPointerMove="{{ joyMove }}" onPointerUp="{{ joyUp }}" onPointerCancel="{{ joyUp }}" aria-label="Joystick virtual" style="position:absolute;left:18px;bottom:86px;width:112px;height:112px;border-radius:50%;border:1px solid rgba(110,160,255,.35);background:rgba(5,10,26,.45);backdrop-filter:blur(6px);pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center">
+          <div ref="{{ knobRef }}" style="width:46px;height:46px;border-radius:50%;background:rgba(77,141,255,.35);border:1px solid #6fe3ff;transition:transform .08s"></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+        <nav aria-label="Menú NEXUS" style="position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:rgba(4,8,20,.92);border-top:1px solid rgba(110,160,255,.2);backdrop-filter:blur(12px);pointer-events:auto;z-index:25">
+          <sc-for list="{{ menu }}" as="m" hint-placeholder-count="6">
+            <button onClick="{{ m.onClick }}" aria-current="{{ m.current }}" style="{{ m.dock }}">
+              <span style="color:#4d6290;font-size:8px">{{ m.num }}</span>
+              <span>{{ m.short }}</span>
+            </button>
+          </sc-for>
+        </nav>
+      </sc-if>
+
+      <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+        <aside aria-label="{{ panelTitle }}" style="{{ panelStyle }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px 14px 20px;border-bottom:1px solid rgba(110,160,255,.16);flex:none">
+            <div style="display:flex;align-items:center;gap:10px;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.24em;min-width:0"><span style="color:#6fe3ff">{{ panelCode }}</span><span style="color:#33456e">/</span><span style="color:#9aabc9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ panelTitle }}</span></div>
+            <button onClick="{{ closePanel }}" aria-label="Cerrar panel" style="min-width:44px;height:32px;background:none;border:1px solid rgba(110,160,255,.22);color:#9aabc9;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;cursor:pointer" style-hover="color:#e6edfb;border-color:#6fe3ff">ESC ✕</button>
+          </div>
+          <div style="height:1px;background:linear-gradient(90deg,#4d8dff,transparent);transform-origin:left;animation:nxLine .8s cubic-bezier(.2,.8,.2,1) both;flex:none"></div>
+          <div ref="{{ panelBody }}" style="flex:1;overflow-y:auto;padding:22px 22px 32px">
+
+            <sc-if value="{{ pAbout }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="display:grid;grid-template-columns:112px minmax(0,1fr);gap:16px;align-items:end">
+                  <div style="aspect-ratio:3/4;border:1px solid rgba(110,160,255,.3);background:repeating-linear-gradient(135deg, rgba(77,141,255,.10) 0 6px, transparent 6px 12px);display:flex;align-items:flex-end;padding:6px;font:500 8px/1.3 ui-monospace, Menlo, monospace;color:#8597ba">avatar render · anime 3D</div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <h2 style="margin:0;font:600 17px/1.5 Oxanium, sans-serif;letter-spacing:.34em">L I N D A<br>S O F I A<br>M O R E N O</h2>
+                    <div style="font:600 10px/1 Oxanium, sans-serif;letter-spacing:.3em;color:#4d8dff">SYSTEMS ENGINEER</div>
+                  </div>
+                </div>
+                <p style="margin:0;font:500 22px/1.35 Oxanium, sans-serif;letter-spacing:.02em;color:#e6edfb;text-wrap:balance">“Construyo sistemas, experiencias y productos digitales.”</p>
+                <div style="display:flex;flex-direction:column;gap:12px;font:400 14.5px/1.65 Manrope, sans-serif;color:#c2cee6">
+                  <p style="margin:0;text-wrap:pretty">Estudio Ingeniería de Sistemas. Antes de escribir código quiero entender el problema: dónde se pierde el material, por qué se duplica una reserva, cómo viaja un pedido de la mesa a la cocina.</p>
+                  <p style="margin:0;text-wrap:pretty">Por eso varios de mis proyectos empiezan con una especificación y terminan con pruebas. En el medio hay arquitectura hexagonal, datos geoespaciales, sincronización en tiempo real, apps Android y bots de Discord.</p>
+                  <p style="margin:0;text-wrap:pretty">Y cuando termino, construyo cosas como esta: un universo para mostrarlo.</p>
+                </div>
+                <div>
+                  <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#6fe3ff;margin-bottom:10px">AREAS</div>
+                  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(110,160,255,.16);border:1px solid rgba(110,160,255,.16)">
+                    <sc-for list="{{ areas }}" as="a" hint-placeholder-count="4">
+                      <div style="background:#060b1d;padding:12px;display:flex;flex-direction:column;gap:6px">
+                        <span style="font:600 10px/1.2 Oxanium, sans-serif;letter-spacing:.2em">{{ a.name }}</span>
+                        <span style="font:400 12px/1.45 Manrope, sans-serif;color:#9aabc9">{{ a.note }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div>
+                  <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#6fe3ff;margin-bottom:10px">OPERATING PRINCIPLES</div>
+                  <div style="display:flex;flex-direction:column">
+                    <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid rgba(110,160,255,.14)"><span style="font:600 10px/1.5 Oxanium, sans-serif;letter-spacing:.18em">PROBLEMA PRIMERO</span><span style="font:400 13px/1.5 Manrope, sans-serif;color:#b3c0da">Gold Deluxe nació de una pregunta concreta: ¿cuánto oro se pierde sin explicación?</span></div>
+                    <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid rgba(110,160,255,.14)"><span style="font:600 10px/1.5 Oxanium, sans-serif;letter-spacing:.18em">ARQUITECTURA</span><span style="font:400 13px/1.5 Manrope, sans-serif;color:#b3c0da">Hexagonal en SIMAV y ZYTIME; límites verificados con import-linter y ArchUnit.</span></div>
+                    <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid rgba(110,160,255,.14)"><span style="font:600 10px/1.5 Oxanium, sans-serif;letter-spacing:.18em">CURIOSIDAD</span><span style="font:400 13px/1.5 Manrope, sans-serif;color:#b3c0da">De un bot para parejas a un prototipo de horror en Unity: formatos distintos para aprender cosas distintas.</span></div>
+                    <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid rgba(110,160,255,.14);border-bottom:1px solid rgba(110,160,255,.14)"><span style="font:600 10px/1.5 Oxanium, sans-serif;letter-spacing:.18em">APRENDIZAJE</span><span style="font:400 13px/1.5 Manrope, sans-serif;color:#b3c0da">Python, Java, JavaScript y Kotlin a lo largo de seis proyectos; cada stack elegido por el problema.</span></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#6fe3ff;margin-bottom:10px">EXPERIENCE LOG</div>
+                  <div style="display:flex;flex-direction:column;gap:8px;font:400 13px/1.5 Manrope, sans-serif;color:#b3c0da">
+                    <button onClick="{{ openZytime }}" style="display:flex;justify-content:space-between;gap:12px;text-align:left;background:none;border:1px solid rgba(165,148,255,.3);padding:10px 12px;color:#e6edfb;cursor:pointer;font:inherit"><span><b style="font-family:Oxanium;letter-spacing:.14em;font-size:11px">ZYTIME</b> — Backend en equipo colaborativo (PR #13, PR #17)</span><span style="font:600 9px/1.6 Oxanium, sans-serif;letter-spacing:.2em;color:#a594ff">TEAM</span></button>
+                    <button onClick="{{ openSimav }}" style="display:flex;justify-content:space-between;gap:12px;text-align:left;background:none;border:1px solid rgba(255,127,192,.3);padding:10px 12px;color:#e6edfb;cursor:pointer;font:inherit"><span><b style="font-family:Oxanium;letter-spacing:.14em;font-size:11px">SIMAV</b> — Dentro de la organización MNT-2026</span><span style="font:600 9px/1.6 Oxanium, sans-serif;letter-spacing:.2em;color:#ff7fc0">ORG</span></button>
+                    <div style="padding:10px 12px;border:1px dashed rgba(110,160,255,.3);font:500 11px/1.5 ui-monospace, Menlo, monospace;color:#8597ba">[ PLACEHOLDER · experiencia laboral / prácticas por agregar ]</div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ pProjects }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
+                  <div>
+                    <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#6fe3ff">PROJECT DATABASE</div>
+                    <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span style="font:600 56px/0.9 Oxanium, sans-serif;letter-spacing:.02em">06</span><span style="font:600 11px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#9aabc9">PROJECTS<br>INDEXED</span></div>
+                  </div>
+                  <div style="font:400 12px/1.5 Manrope, sans-serif;color:#8597ba;max-width:170px;text-align:right">Selecciona un nodo para viajar a su mundo.</div>
+                </div>
+                <div role="group" aria-label="Filtrar por tipo" style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+                    <button onClick="{{ f.onClick }}" aria-pressed="{{ f.pressed }}" style="{{ f.style }}">{{ f.label }} <span style="opacity:.6">{{ f.count }}</span></button>
+                  </sc-for>
+                </div>
+                <div style="display:flex;flex-direction:column;border-top:1px solid rgba(110,160,255,.16)">
+                  <sc-for list="{{ rows }}" as="p" hint-placeholder-count="6">
+                    <button onClick="{{ p.onClick }}" style="display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 4px;background:none;border:0;border-bottom:1px solid rgba(110,160,255,.16);color:#e6edfb;text-align:left;cursor:pointer;transition:background .2s, padding .25s" style-hover="background:rgba(77,141,255,.08);padding-left:10px">
+                      <span style="display:flex;align-items:center;gap:8px;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.14em;color:#8597ba"><span style="{{ p.dot }}"></span>{{ p.num }}</span>
+                      <span style="display:flex;flex-direction:column;gap:5px;min-width:0">
+                        <span style="font:600 14px/1.1 Oxanium, sans-serif;letter-spacing:.2em">{{ p.name }}</span>
+                        <span style="font:400 12.5px/1.4 Manrope, sans-serif;color:#9aabc9;text-wrap:pretty">{{ p.tagline }}</span>
+                      </span>
+                      <span style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+                        <span style="{{ p.badge }}">{{ p.type }}</span>
+                        <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.2em;color:#6fe3ff">VIEW PROJECT →</span>
+                      </span>
+                    </button>
+                  </sc-for>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:14px;font:500 11px/1.5 Manrope, sans-serif;color:#8597ba">
+                  <span><b style="color:#6fe3ff;font-family:Oxanium;letter-spacing:.16em;font-size:10px">PERSONAL</b> repos privados</span>
+                  <span><b style="color:#a594ff;font-family:Oxanium;letter-spacing:.16em;font-size:10px">TEAM</b> contribución acotada</span>
+                  <span><b style="color:#ff7fc0;font-family:Oxanium;letter-spacing:.16em;font-size:10px">ORGANIZATION</b> MNT-2026</span>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ pProject }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+                    <span style="{{ proj.badge }}">{{ proj.type }} PROJECT</span>
+                    <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.2em;color:#8597ba">{{ proj.kind }}</span>
+                  </div>
+                  <h2 style="{{ proj.nameStyle }}">{{ proj.name }}</h2>
+                  <div style="{{ proj.accentLine }}"></div>
+                  <p style="margin:0;font:500 16px/1.5 Manrope, sans-serif;color:#dbe4f5;text-wrap:pretty">{{ proj.tagline }}</p>
+                  <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.22em;color:#6f82a8">WORLD · {{ proj.world }}</div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-if value="{{ proj.hasArch }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ proj.onArch }}" style="min-height:44px;padding:0 16px;background:#4d8dff;border:0;color:#02040b;font:700 10px/1 Oxanium, sans-serif;letter-spacing:.2em;cursor:pointer" style-hover="background:#6fe3ff">[ VIEW ARCHITECTURE ]</button>
+                  </sc-if>
+                  <a href="https://github.com/Sofira28" target="_blank" rel="noopener" style="min-height:44px;padding:0 14px;display:flex;align-items:center;gap:10px;border:1px solid rgba(110,160,255,.3);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.2em" style-hover="border-color:#6fe3ff">[ GITHUB ] <span style="{{ proj.repoChip }}">{{ proj.repo.state }}</span></a>
+                </div>
+                <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px dashed rgba(110,160,255,.25);font:400 12px/1.5 Manrope, sans-serif;color:#9aabc9">
+                  <span style="font:600 9px/1.7 Oxanium, sans-serif;letter-spacing:.2em;color:#6f82a8;flex:none">REPO</span><span>{{ proj.repo.note }}</span>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:16px">
+                  <div><div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#ff7fc0;margin-bottom:8px">PROBLEM</div><p style="margin:0;font:400 14px/1.6 Manrope, sans-serif;color:#c7d3ea;text-wrap:pretty">{{ proj.problem }}</p></div>
+                  <div><div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#5ff0b0;margin-bottom:8px">SOLUTION</div><p style="margin:0;font:400 14px/1.6 Manrope, sans-serif;color:#c7d3ea;text-wrap:pretty">{{ proj.solution }}</p></div>
+                </div>
+                <div>
+                  <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#6fe3ff;margin-bottom:10px">SYSTEM FLOW</div>
+                  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">
+                    <sc-for list="{{ proj.flowSteps }}" as="f" hint-placeholder-count="5">
+                      <div style="display:flex;align-items:center;gap:6px">
+                        <div style="{{ f.style }}"><span style="opacity:.55;margin-right:6px">{{ f.idx }}</span>{{ f.label }}</div>
+                        <sc-if value="{{ f.notLast }}" hint-placeholder-val="{{ true }}"><span style="{{ f.arrow }}">→</span></sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <sc-for list="{{ proj.sections }}" as="sec" hint-placeholder-count="2">
+                  <div>
+                    <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#6fe3ff;margin-bottom:10px">{{ sec.title }}</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px">
+                      <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="4">
+                        <span style="font:500 12.5px/1.3 Manrope, sans-serif;padding:6px 10px;background:rgba(77,141,255,.07);border:1px solid rgba(110,160,255,.18);color:#d3dcef">{{ it }}</span>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+                <div>
+                  <div style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.28em;color:#6fe3ff;margin-bottom:10px">STACK</div>
+                  <div style="display:flex;flex-direction:column;border-top:1px solid rgba(110,160,255,.14)">
+                    <sc-for list="{{ proj.stack }}" as="g" hint-placeholder-count="3">
+                      <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid rgba(110,160,255,.14)">
+                        <span style="font:600 9px/1.6 Oxanium, sans-serif;letter-spacing:.18em;color:#8597ba">{{ g.g }}</span>
+                        <span style="display:flex;flex-wrap:wrap;gap:4px 12px">
+                          <sc-for list="{{ g.items }}" as="t" hint-placeholder-count="4"><span style="font:600 12px/1.5 Oxanium, sans-serif;letter-spacing:.04em;color:#e6edfb">{{ t }}</span></sc-for>
+                        </span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(110,160,255,.16);border:1px solid rgba(110,160,255,.16)">
+                  <div style="background:#060b1d;padding:12px;display:flex;flex-direction:column;gap:6px"><span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#8597ba">MY ROLE</span><span style="font:500 13px/1.45 Manrope, sans-serif">{{ proj.role }}</span></div>
+                  <div style="background:#060b1d;padding:12px;display:flex;flex-direction:column;gap:6px"><span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#8597ba">METHOD</span><span style="font:500 13px/1.45 Manrope, sans-serif">{{ proj.methodText }}</span></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;gap:8px">
+                  <button onClick="{{ proj.onPrev }}" style="min-height:44px;padding:0 12px;background:none;border:1px solid rgba(110,160,255,.2);color:#9aabc9;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;cursor:pointer" style-hover="color:#e6edfb">← {{ proj.prevName }}</button>
+                  <button onClick="{{ openProjects }}" style="min-height:44px;padding:0 12px;background:none;border:0;color:#6f82a8;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;cursor:pointer" style-hover="color:#e6edfb">DATABASE</button>
+                  <button onClick="{{ proj.onNext }}" style="min-height:44px;padding:0 12px;background:none;border:1px solid rgba(110,160,255,.2);color:#9aabc9;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;cursor:pointer" style-hover="color:#e6edfb">{{ proj.nextName }} →</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ pSystems }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <p style="margin:0;font:400 13.5px/1.55 Manrope, sans-serif;color:#b3c0da;text-wrap:pretty">Sin porcentajes: cada tecnología está conectada a los proyectos donde la usé. Selecciona una categoría y luego una tecnología.</p>
+                <svg viewBox="0 0 560 560" role="img" aria-label="Constelación de tecnologías" style="width:100%;max-width:520px;align-self:center;height:auto;display:block">
+                  <sc-for list="{{ cLines }}" as="ln" hint-placeholder-count="0"><line x1="{{ ln.x1 }}" y1="{{ ln.y1 }}" x2="{{ ln.x2 }}" y2="{{ ln.y2 }}" style="{{ ln.style }}"></line></sc-for>
+                  <sc-for list="{{ cDots }}" as="d" hint-placeholder-count="0"><circle cx="{{ d.x }}" cy="{{ d.y }}" r="{{ d.r }}" style="{{ d.style }}" onClick="{{ d.onClick }}"></circle></sc-for>
+                  <circle cx="280" cy="280" r="26" style="fill:#071230;stroke:#4d8dff;stroke-width:1"></circle>
+                  <text x="280" y="285" style="fill:#e6edfb;font:700 13px Oxanium, sans-serif;letter-spacing:3px;text-anchor:middle">LSM</text>
+                  <sc-for list="{{ cHubs }}" as="h" hint-placeholder-count="0">
+                    <g onClick="{{ h.onClick }}" style="cursor:pointer">
+                      <circle cx="{{ h.x }}" cy="{{ h.y }}" r="{{ h.r }}" style="{{ h.style }}"></circle>
+                      <text x="{{ h.lx }}" y="{{ h.ly }}" style="{{ h.tStyle }}">{{ h.name }}</text>
+                    </g>
+                  </sc-for>
+                </svg>
+                <div role="tablist" aria-label="Categorías" style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ cHubs }}" as="h" hint-placeholder-count="9">
+                    <button role="tab" aria-selected="{{ h.selected }}" onClick="{{ h.onClick }}" style="{{ h.btn }}">{{ h.name }}</button>
+                  </sc-for>
+                </div>
+                <div style="border-top:1px solid rgba(110,160,255,.16);padding-top:14px;display:flex;flex-direction:column;gap:12px">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><span style="font:600 13px/1 Oxanium, sans-serif;letter-spacing:.24em">{{ catName }}</span><span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.2em;color:#6f82a8">{{ catCount }} NODES</span></div>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px">
+                    <sc-for list="{{ techChips }}" as="t" hint-placeholder-count="6">
+                      <button onClick="{{ t.onClick }}" aria-pressed="{{ t.pressed }}" style="{{ t.style }}">{{ t.name }}</button>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ hasTech }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:12px;border:1px solid rgba(111,227,255,.35);background:rgba(111,227,255,.05);display:flex;flex-direction:column;gap:10px;animation:nxIn .35s ease both">
+                      <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#6fe3ff">{{ techName }} · USED IN</span>
+                      <div style="display:flex;flex-wrap:wrap;gap:6px">
+                        <sc-for list="{{ techProjects }}" as="tp" hint-placeholder-count="2">
+                          <button onClick="{{ tp.onClick }}" style="min-height:36px;padding:0 12px;background:none;border:1px solid rgba(110,160,255,.3);color:#e6edfb;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;cursor:pointer" style-hover="border-color:#6fe3ff">{{ tp.code }} {{ tp.name }} →</button>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ pArch }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <div role="tablist" aria-label="Sistemas" style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ archTabs }}" as="t" hint-placeholder-count="6">
+                    <button role="tab" aria-selected="{{ t.selected }}" onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.tab }}</button>
+                  </sc-for>
+                </div>
+                <div>
+                  <div style="font:600 18px/1.3 Oxanium, sans-serif;letter-spacing:.14em">{{ arch.title }}</div>
+                  <p style="margin:6px 0 0;font:400 13.5px/1.5 Manrope, sans-serif;color:#9aabc9">{{ arch.summary }}</p>
+                </div>
+
+                <sc-if value="{{ archIsStack }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;align-items:stretch">
+                    <sc-for list="{{ archLayers }}" as="L" hint-placeholder-count="4">
+                      <div style="display:flex;flex-direction:column;align-items:stretch">
+                        <button onClick="{{ L.onClick }}" style="{{ L.style }}">
+                          <span style="display:flex;align-items:center;gap:10px;font:600 11px/1 Oxanium, sans-serif;letter-spacing:.22em"><span style="opacity:.5">{{ L.idx }}</span>{{ L.name }}</span>
+                          <span style="display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:flex-end">
+                            <sc-for list="{{ L.items }}" as="i" hint-placeholder-count="3"><span style="font:500 12px/1.4 Manrope, sans-serif;color:#b3c0da">{{ i }}</span></sc-for>
+                          </span>
+                        </button>
+                        <sc-if value="{{ L.notLast }}" hint-placeholder-val="{{ true }}"><div style="{{ L.link }}"></div></sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ archIsHex }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <button onClick="{{ hx.clients.onClick }}" style="{{ hx.clients.style }}"><span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#8597ba">CLIENTS</span><span style="display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center"><sc-for list="{{ arch.clients }}" as="i" hint-placeholder-count="3"><span style="font:500 12px/1.4 Manrope, sans-serif">{{ i }}</span></sc-for></span></button>
+                    <div style="height:14px;width:1px;background:#4d8dff;align-self:center"></div>
+                    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:8px;align-items:stretch">
+                      <button onClick="{{ hx.inbound.onClick }}" style="{{ hx.inbound.style }}"><span style="font:600 9px/1.3 Oxanium, sans-serif;letter-spacing:.2em;color:#8597ba">INBOUND ADAPTERS</span><sc-for list="{{ arch.inbound }}" as="i" hint-placeholder-count="3"><span style="font:500 12px/1.35 Manrope, sans-serif">{{ i }}</span></sc-for></button>
+                      <div style="border:1px dashed rgba(110,160,255,.4);padding:12px;display:flex;flex-direction:column;gap:8px;align-items:stretch">
+                        <span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#4d8dff;text-align:center">PORTS</span>
+                        <button onClick="{{ hx.core.onClick }}" style="{{ hx.core.style }}"><span style="font:600 10px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#6fe3ff">DOMAIN CORE</span><sc-for list="{{ arch.core }}" as="i" hint-placeholder-count="3"><span style="font:500 12px/1.35 Manrope, sans-serif">{{ i }}</span></sc-for></button>
+                      </div>
+                      <button onClick="{{ hx.outbound.onClick }}" style="{{ hx.outbound.style }}"><span style="font:600 9px/1.3 Oxanium, sans-serif;letter-spacing:.2em;color:#8597ba">OUTBOUND ADAPTERS</span><sc-for list="{{ arch.outbound }}" as="i" hint-placeholder-count="4"><span style="font:500 12px/1.35 Manrope, sans-serif">{{ i }}</span></sc-for></button>
+                    </div>
+                    <div style="height:14px;width:1px;background:#4d8dff;align-self:center"></div>
+                    <button onClick="{{ hx.deploy.onClick }}" style="{{ hx.deploy.style }}"><span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#8597ba">DEPLOY · QUALITY</span><span style="display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center"><sc-for list="{{ arch.deploy }}" as="i" hint-placeholder-count="3"><span style="font:500 12px/1.4 Manrope, sans-serif">{{ i }}</span></sc-for></span></button>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ archIsModular }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                      <sc-for list="{{ arch.channels }}" as="c" hint-placeholder-count="3"><span style="font:600 10px/1 Oxanium, sans-serif;letter-spacing:.18em;padding:8px 12px;border:1px solid rgba(110,160,255,.25);color:#b3c0da">{{ c }}</span></sc-for>
+                    </div>
+                    <div style="height:14px;width:1px;background:#4d8dff;align-self:center"></div>
+                    <div style="border:1px solid rgba(110,160,255,.3);padding:12px;display:flex;flex-direction:column;gap:10px">
+                      <div style="display:flex;justify-content:space-between;gap:8px;font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em"><span style="color:#4d8dff">SPRING BOOT · MODULAR MONOLITH</span><span style="color:#6f82a8">HEXAGONAL PER MODULE</span></div>
+                      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+                        <sc-for list="{{ archModules }}" as="m" hint-placeholder-count="4">
+                          <button onClick="{{ m.onClick }}" style="{{ m.style }}">
+                            <span style="display:flex;justify-content:space-between;gap:6px;align-items:center"><span style="font:600 10px/1.2 Oxanium, sans-serif;letter-spacing:.2em">{{ m.name }}</span><span style="{{ m.tagStyle }}">{{ m.tag }}</span></span>
+                            <span style="display:flex;flex-wrap:wrap;gap:2px 10px"><sc-for list="{{ m.items }}" as="i" hint-placeholder-count="3"><span style="font:500 11.5px/1.4 Manrope, sans-serif;color:#b3c0da">{{ i }}</span></sc-for></span>
+                          </button>
+                        </sc-for>
+                      </div>
+                    </div>
+                    <div style="height:14px;width:1px;background:#4d8dff;align-self:center"></div>
+                    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+                      <div style="border:1px solid rgba(110,160,255,.2);padding:10px;display:flex;flex-direction:column;gap:6px"><span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#8597ba">PERSISTENCE · CONTRACT</span><span style="display:flex;flex-wrap:wrap;gap:2px 10px"><sc-for list="{{ arch.infra }}" as="i" hint-placeholder-count="3"><span style="font:600 12px/1.4 Oxanium, sans-serif">{{ i }}</span></sc-for></span></div>
+                      <div style="border:1px solid rgba(110,160,255,.2);padding:10px;display:flex;flex-direction:column;gap:6px"><span style="font:600 9px/1 Oxanium, sans-serif;letter-spacing:.24em;color:#8597ba">TESTING</span><span style="display:flex;flex-wrap:wrap;gap:2px 10px"><sc-for list="{{ arch.tests }}" as="i" hint-placeholder-count="3"><span style="font:600 12px/1.4 Oxanium, sans-serif">{{ i }}</span></sc-for></span></div>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <div aria-live="polite" style="display:flex;gap:12px;padding:12px 14px;background:rgba(77,141,255,.07);border:1px solid rgba(77,141,255,.3)">
+                  <span style="font:600 9px/1.7 Oxanium, sans-serif;letter-spacing:.24em;color:#4d8dff;flex:none">INSPECTOR</span>
+                  <span style="font:400 13px/1.55 Manrope, sans-serif;color:#d3dcef;text-wrap:pretty">{{ archNote }}</span>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ pLab }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:rgba(110,160,255,.16);border:1px solid rgba(110,160,255,.16)">
+                  <div style="background:#060b1d;padding:10px 12px"><div style="font:600 22px/1 Oxanium, sans-serif">06</div><div style="font:600 8px/1.4 Oxanium, sans-serif;letter-spacing:.22em;color:#8597ba;margin-top:4px">PROJECTS</div></div>
+                  <div style="background:#060b1d;padding:10px 12px"><div style="font:600 22px/1 Oxanium, sans-serif">{{ techCount }}</div><div style="font:600 8px/1.4 Oxanium, sans-serif;letter-spacing:.22em;color:#8597ba;margin-top:4px">TECH NODES</div></div>
+                  <div style="background:#060b1d;padding:10px 12px"><div style="font:600 22px/1 Oxanium, sans-serif">04</div><div style="font:600 8px/1.4 Oxanium, sans-serif;letter-spacing:.22em;color:#8597ba;margin-top:4px">MAIN LANGUAGES</div></div>
+                </div>
+                <div onClick="{{ focusTerm }}" style="background:#01030a;border:1px solid rgba(110,160,255,.25);display:flex;flex-direction:column;height:min(46vh,380px)">
+                  <div style="display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid rgba(110,160,255,.14);font:600 9px/1 Oxanium, sans-serif;letter-spacing:.22em;color:#6f82a8"><span>visitor@nexus:~</span><span>TTY-01</span></div>
+                  <div ref="{{ termBox }}" role="log" aria-live="polite" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:3px">
+                    <sc-for list="{{ termLines }}" as="ln" hint-placeholder-count="2"><div style="{{ ln.style }}">{{ ln.s }}</div></sc-for>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid rgba(110,160,255,.14)">
+                    <span style="font:600 12px/1 ui-monospace, Menlo, monospace;color:#6fe3ff">&gt;</span>
+                    <input ref="{{ termInputRef }}" value="{{ termIn }}" onChange="{{ onTermChange }}" onKeyDown="{{ onTermKey }}" aria-label="Comando de terminal" spellcheck="false" autocomplete="off" placeholder="help" style="flex:1;min-width:0;background:none;border:0;outline:none;color:#e6edfb;font:500 13px/1.4 ui-monospace, Menlo, monospace;height:32px">
+                  </div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ quickCmds }}" as="q" hint-placeholder-count="5">
+                    <button onClick="{{ q.onClick }}" style="min-height:36px;padding:0 12px;background:none;border:1px solid rgba(110,160,255,.22);color:#b3c0da;font:500 12px/1 ui-monospace, Menlo, monospace;cursor:pointer" style-hover="border-color:#6fe3ff;color:#e6edfb">{{ q.c }}</button>
+                  </sc-for>
+                </div>
+                <div style="font:500 11px/1.5 Manrope, sans-serif;color:#6f82a8">Pista: no todos los directorios aparecen con <span style="font-family:ui-monospace, Menlo, monospace;color:#9aabc9">ls</span>.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ pContact }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <div>
+                  <h2 style="margin:0;font:600 26px/1.15 Oxanium, sans-serif;letter-spacing:.14em">ESTABLISH<br>CONNECTION</h2>
+                  <p style="margin:10px 0 0;font:400 14px/1.55 Manrope, sans-serif;color:#b3c0da">Prácticas, primer empleo o un proyecto: escríbeme por cualquiera de estos canales.</p>
+                </div>
+                <div style="display:flex;flex-direction:column;border-top:1px solid rgba(110,160,255,.16)">
+                  <sc-for list="{{ contacts }}" as="c" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid rgba(110,160,255,.16)">
+                      <span style="font:600 10px/1.3 Oxanium, sans-serif;letter-spacing:.2em;color:#9aabc9">{{ c.label }}</span>
+                      <sc-if value="{{ c.live }}" hint-placeholder-val="{{ true }}">
+                        <a href="{{ c.href }}" target="_blank" rel="noopener" style="font:600 13px/1.4 Oxanium, sans-serif;letter-spacing:.06em;color:#e6edfb;overflow-wrap:anywhere" style-hover="color:#6fe3ff">{{ c.value }} ↗</a>
+                      </sc-if>
+                      <sc-if value="{{ c.pending }}" hint-placeholder-val="{{ false }}">
+                        <span style="font:500 11.5px/1.4 ui-monospace, Menlo, monospace;color:#8597ba">{{ c.value }}</span>
+                      </sc-if>
+                      <span style="{{ c.statusStyle }}">{{ c.status }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <button onClick="{{ openResume }}" style="min-height:48px;background:#4d8dff;border:0;color:#02040b;font:700 11px/1 Oxanium, sans-serif;letter-spacing:.22em;cursor:pointer" style-hover="background:#6fe3ff">[ DOWNLOAD RESUME ]</button>
+                <div style="font:500 11px/1.5 Manrope, sans-serif;color:#6f82a8">Los repositorios personales son privados; el perfil de GitHub muestra la actividad pública.</div>
+              </div>
+            </sc-if>
+
+          </div>
+        </aside>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showBoot }}" hint-placeholder-val="{{ true }}">
+    <div role="dialog" aria-label="Inicio del sistema" style="{{ bootStyle }}">
+      <div style="width:min(560px,100%);display:flex;flex-direction:column;gap:28px">
+        <div aria-live="polite" style="display:flex;flex-direction:column;gap:6px;min-height:190px;font:500 13px/1.5 ui-monospace, Menlo, monospace">
+          <sc-for list="{{ bootLines }}" as="b" hint-placeholder-count="0"><div style="{{ b.style }}">{{ b.s }}</div></sc-for>
+          <sc-if value="{{ bootTyping }}" hint-placeholder-val="{{ true }}"><span style="display:inline-block;width:8px;height:15px;background:#6fe3ff;animation:nxBlink 1s steps(1) infinite"></span></sc-if>
+        </div>
+        <sc-if value="{{ bootDone }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;animation:nxIn .9s cubic-bezier(.2,.8,.2,1) both">
+            <div style="display:flex;align-items:center;gap:18px">
+              <span style="font:700 clamp(56px,12vw,104px)/0.9 Oxanium, sans-serif;letter-spacing:.14em;color:#e6edfb">LSM</span>
+              <span style="flex:1;height:1px;background:linear-gradient(90deg,#4d8dff,transparent);transform-origin:left;animation:nxLine 1.2s .3s cubic-bezier(.2,.8,.2,1) both"></span>
+            </div>
+            <div style="font:600 clamp(12px,2.4vw,15px)/1.4 Oxanium, sans-serif;letter-spacing:.42em;color:#e6edfb">L I N D A &nbsp; S O F I A &nbsp; M O R E N O</div>
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:600 11px/1 Oxanium, sans-serif;letter-spacing:.32em"><span style="color:#4d8dff">SYSTEMS ENGINEER</span><span style="color:#6f82a8">BUILD SYSTEMS. CREATE WORLDS.</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">
+              <button onClick="{{ enterNexus }}" style="min-height:52px;padding:0 26px;background:#4d8dff;border:0;color:#02040b;font:700 13px/1 Oxanium, sans-serif;letter-spacing:.3em;cursor:pointer;box-shadow:0 0 30px rgba(77,141,255,.35)" style-hover="background:#6fe3ff">[ ENTER NEXUS ]</button>
+              <button onClick="{{ enterQuick }}" style="min-height:52px;padding:0 18px;background:none;border:1px solid rgba(110,160,255,.35);color:#c7d3ea;font:600 11px/1 Oxanium, sans-serif;letter-spacing:.2em;cursor:pointer" style-hover="border-color:#6fe3ff;color:#e6edfb">QUICK ACCESS → PROJECTS</button>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:16px;font:500 11px/1.5 Manrope, sans-serif;color:#6f82a8">
+              <span>Enter ↵ para iniciar</span>
+              <button onClick="{{ toggleSound }}" style="background:none;border:0;padding:0;color:#9aabc9;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px">{{ soundLabel }}</button>
+              <button onClick="{{ cycleTier }}" style="background:none;border:0;padding:0;color:#9aabc9;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px">RENDER: {{ tierLabel }}</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ secret }}" hint-placeholder-val="{{ false }}">
+    <div role="dialog" aria-label="Área secreta" onPointerMove="{{ onSecretMove }}" style="position:absolute;inset:0;z-index:60;background:#050404;overflow:hidden;animation:nxFade 1.2s ease both;cursor:crosshair">
+      <div style="position:absolute;left:0;right:0;bottom:0;height:32%;background:linear-gradient(180deg,#0d0b0a,#141110);border-top:1px solid #1f1a17"></div>
+      <button onClick="{{ knockDoor }}" aria-label="Puerta" style="position:absolute;left:50%;bottom:32%;transform:translateX(-50%);width:min(200px,36vw);height:min(380px,52vh);background:linear-gradient(90deg,#1a1411,#241b16);border:10px solid #0e0b09;cursor:pointer;padding:0">
+        <span style="position:absolute;right:16px;top:52%;width:10px;height:10px;border-radius:50%;background:#5a4b3a"></span>
+        <span style="position:absolute;left:0;right:0;bottom:-10px;height:3px;background:#c9a56a;opacity:.25"></span>
+      </button>
+      <button onClick="{{ readNote }}" aria-label="Nota en el suelo" style="position:absolute;left:calc(50% + min(170px,30vw));bottom:18%;width:86px;height:62px;background:#d8cfbd;border:0;transform:rotate(-8deg);cursor:pointer;padding:8px;display:flex;flex-direction:column;gap:5px">
+        <span style="height:2px;width:80%;background:#7d7466"></span><span style="height:2px;width:60%;background:#7d7466"></span><span style="height:2px;width:70%;background:#7d7466"></span>
+      </button>
+      <div ref="{{ flashRef }}" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle 210px at var(--fx,50%) var(--fy,60%), rgba(0,0,0,0) 0%, rgba(0,0,0,.6) 55%, rgba(1,1,2,.97) 100%)"></div>
+      <div style="position:absolute;top:20px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <span style="font:600 10px/1 Oxanium, sans-serif;letter-spacing:.3em;color:#7d6e5c">.SECRET_ROOM // UNITY</span>
+        <button onClick="{{ closeSecret }}" style="min-height:44px;padding:0 14px;background:none;border:1px solid #3a302a;color:#c9b9a3;font:600 10px/1 Oxanium, sans-serif;letter-spacing:.2em;cursor:pointer">EXIT ✕</button>
+      </div>
+      <sc-if value="{{ hasSecretMsg }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:min(520px,88vw);padding:16px 18px;background:rgba(20,16,13,.92);border:1px solid #3a302a;color:#d8cfbd;font:400 14px/1.6 Manrope, sans-serif;animation:nxIn .5s ease both;text-wrap:pretty">{{ secretMsg }}</div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:absolute;left:50%;top:76px;transform:translateX(-50%);z-index:70;padding:12px 16px;background:rgba(5,9,22,.94);border:1px solid #4d8dff;font:600 10px/1.5 Oxanium, sans-serif;letter-spacing:.18em;color:#e6edfb;max-width:88vw;text-align:center;animation:nxIn .35s ease both">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;perfMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;high&quot;,&quot;lite&quot;,&quot;2d&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;'auto'|'high'|'lite'|'2d'&quot;,&quot;section&quot;:&quot;Experience&quot;},&quot;skipBoot&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Experience&quot;},&quot;forceReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Experience&quot;},&quot;showFps&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Experience&quot;},&quot;resumeUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;},&quot;emailAddress&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;},&quot;linkedinUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;}}">
+class Component extends DCLogic {
+  state = { data: null, phase: 'boot', bootLines: [], bootDone: false, bootExit: false, arrived: false, panel: null, pid: null, mode: 'exploration', sound: false, reduced: false, tier: 'high', isMobile: false, flowStep: 0, filter: 'ALL', cat: 1, tech: null, archId: 'overview', archSel: null, term: [], termIn: '', secret: false, secretMsg: '', toast: null, settings: false };
+  canvasHost = React.createRef(); labelLayer = React.createRef(); fpsRef = React.createRef(); termBox = React.createRef(); termInputRef = React.createRef(); flashRef = React.createRef(); knobRef = React.createRef(); panelBody = React.createRef();
+  keys = {}; joy = { x: 0, y: 0 }; time = 0; off = { x: 0, y: 0 }; hoverId = null; selected = null; anims = []; hits = []; worlds = []; anchors = {}; labelOff = {}; colors = {}; fc = 0; ft = 0;
+
+  componentDidMount() {
+    const reduced = !!this.props.forceReducedMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const tier = this.detectTier();
+    this.setState({ reduced, tier, isMobile: innerWidth < 760, term: [{ t: 'sys', s: 'LSM // LAB TERMINAL v1.0' }, { t: 'out', s: 'Escribe "help" para ver los comandos.' }] });
+    import(new URL('nexus-data.js', document.baseURI).href).then(m => { if (this.dead) return; this.D = m; this.setState({ data: m }); this.buildWorlds(); }).catch(e => console.warn('[nexus] data load failed: ' + (e && e.message || e)));
+    this.onResize = () => { const m = innerWidth < 760; if (m !== this.state.isMobile) this.setState({ isMobile: m }); this.resizeGL(); };
+    this.onKey = (e) => this.handleKey(e, true); this.onKeyUp = (e) => { this.keys[e.code] = false; };
+    addEventListener('resize', this.onResize); addEventListener('keydown', this.onKey); addEventListener('keyup', this.onKeyUp);
+    this.probeP = tier !== '2d' ? this.probe(tier) : Promise.resolve('2d');
+    if (this.props.skipBoot) { this.setState({ bootDone: true }); setTimeout(() => this.enter(false, true), 50); } else this.runBoot(tier, reduced);
+    this.flowTimer = setInterval(() => { if (this.state.panel === 'project') this.setState(s => ({ flowStep: s.flowStep + 1 })); }, 900);
+  }
+  componentWillUnmount() {
+    this.dead = true; cancelAnimationFrame(this.raf); clearInterval(this.flowTimer); clearTimeout(this.bootT); clearTimeout(this.toastT);
+    removeEventListener('resize', this.onResize); removeEventListener('keydown', this.onKey); removeEventListener('keyup', this.onKeyUp);
+    if (this.renderer) { this.renderer.dispose(); this.renderer.domElement.remove(); }
+    this.stopAmbient(); if (this.ac) this.ac.close();
+  }
+  componentDidUpdate() {
+    const s = this.state;
+    if (this._pTerm !== s.term) { this._pTerm = s.term; if (this.termBox.current) this.termBox.current.scrollTop = 1e6; }
+    const k = s.panel + '|' + s.pid; if (this._pPanel !== k) { this._pPanel = k; if (this.panelBody.current) this.panelBody.current.scrollTop = 0; }
+  }
+
+  detectTier() {
+    const pm = this.props.perfMode || 'auto'; if (pm !== 'auto') return pm;
+    let gl = null; try { const c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) {}
+    if (!gl) return '2d';
+    try { const ext = gl.getExtension('WEBGL_debug_renderer_info'); const rn = String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)); if (/swiftshader|llvmpipe|softpipe|software|basic render|mesa offscreen/i.test(rn)) return '2d'; } catch (e) {}
+    const cores = navigator.hardwareConcurrency || 4, mem = navigator.deviceMemory || 4;
+    if (cores <= 2 || mem <= 1) return '2d';
+    if (matchMedia('(pointer: coarse)').matches || cores <= 4 || mem <= 2) return 'lite';
+    return 'high';
+  }
+  runBoot(tier, reduced) {
+    const prof = { high: '3D · HIGH', lite: '3D · LITE', '2d': '2D · PERFORMANCE' }[tier];
+    const L = [['> BOOTING SYSTEM...', 'in'], ['> INITIALIZING NEXUS...', 'in'], ['> LOADING CORE...', 'in'], ['> LOADING PROJECTS... 06 FOUND', 'in'], ['> LOADING SKILLS...', 'in'], ['> CONNECTING...', 'in'], ['RENDER PROFILE ....... ' + prof, 'dim'], ['SYSTEM STATUS ........ ONLINE', 'ok']].map(([s, t]) => ({ s, t }));
+    if (reduced) { this.setState({ bootLines: L, bootDone: true }); return; }
+    let i = 0;
+    const step = () => { if (this.dead) return; const ln = L[i]; this.setState(s => ({ bootLines: [...s.bootLines, ln] })); this.sfx('tick'); i++; if (i < L.length) this.bootT = setTimeout(step, i === L.length - 1 ? 480 : 230 + Math.random() * 140); else this.bootT = setTimeout(() => this.setState({ bootDone: true }), 520); };
+    this.bootT = setTimeout(step, 600);
+  }
+  async probe(tier) {
+    // tiny isolated GPU probe: decides the tier before anything heavy exists
+    try {
+      const T = await import('https://unpkg.com/three@0.184.0/build/three.module.js'); if (this.dead) return '2d'; this.THREE = T;
+      const r = new T.WebGLRenderer({ antialias: false }); r.setSize(64, 64, false);
+      const sc = new T.Scene(), cam = new T.PerspectiveCamera(50, 1, .1, 10); cam.position.z = 3; sc.add(new T.AmbientLight(0xffffff, 1));
+      sc.add(new T.Mesh(new T.SphereGeometry(1, 24, 16), new T.MeshStandardMaterial({ color: 0x4d8dff })));
+      const gl = r.getContext(), px = new Uint8Array(4), w0 = performance.now();
+      r.render(sc, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); const warm = performance.now() - w0;
+      const b0 = performance.now(); for (let k = 0; k < 3; k++) { r.render(sc, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); }
+      const avg = (performance.now() - b0) / 3; r.dispose(); try { r.forceContextLoss(); } catch (e) {}
+      let t = tier; if ((this.props.perfMode || 'auto') === 'auto') { if (avg > 30 || warm > 1200) t = '2d'; else if (avg > 12 || warm > 400) t = 'lite'; }
+      if (t !== this.state.tier) this.setState({ tier: t }); return t;
+    } catch (e) { console.warn('[nexus] probe failed: ' + (e && e.message || e)); this.setState({ tier: '2d' }); return '2d'; }
+  }
+  enter(quick, instant) {
+    if (this.state.phase !== 'boot' || this.state.bootExit) return;
+    this.sfx('teleport'); this.setState({ bootExit: true });
+    const go = async () => {
+      const tier = await this.probeP; if (this.dead) return;
+      if (tier !== '2d' && this.state.tier !== '2d' && !this.renderer) { try { await this.initScene(this.state.tier); } catch (e) { console.warn('[nexus] 3D init failed: ' + (e && e.message || e)); this.setState({ tier: '2d' }); } }
+      if (this.dead) return; this.setState({ phase: 'world' });
+      const fly = !quick && !instant && !this.state.reduced && this.renderer && this.state.tier !== '2d';
+      if (fly) { this.startBurst(); this.startIntro(); } else { this.snapRig(); this.arrive(quick); }
+    };
+    setTimeout(go, instant ? 0 : 750);
+  }
+  arrive(quick) { this.setState({ arrived: true }); if (quick) { this.setState({ mode: 'system' }); this.openPanel('projects'); } }
+
+  // ---------- 3D ----------
+  async initScene(tier) {
+    let T; try { T = this.THREE || await import('https://unpkg.com/three@0.184.0/build/three.module.js'); } catch (e) { console.warn('[nexus] three.js load failed: ' + (e && e.message || e)); this.setState({ tier: '2d' }); this.toast('MOTOR 3D NO DISPONIBLE · PERFORMANCE MODE'); return; }
+    if (this.dead || !this.canvasHost.current) return;
+    this.THREE = T; const host = this.canvasHost.current; const hi = tier === 'high';
+    const W = host.clientWidth || innerWidth, H = host.clientHeight || innerHeight; this.W = W; this.H = H;
+    const r = new T.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+    r.setPixelRatio(1); this.goodFrames = 0; this.slowN = 0; r.setSize(W, H);
+    r.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;outline:none';
+    host.appendChild(r.domElement); this.renderer = r;
+    const sc = new T.Scene(); sc.background = new T.Color(0x02040b); sc.fog = new T.FogExp2(0x02040b, 0.0105); this.scene = sc;
+    const cam = new T.PerspectiveCamera(55, W / H, 0.1, 3000); cam.position.set(0, 5, 700); cam.lookAt(0, 2, 0); this.cam = cam;
+    sc.add(new T.AmbientLight(0x3a4a7a, 1.1));
+    const key = new T.DirectionalLight(0xa9c8ff, 1.6); key.position.set(12, 22, 14); sc.add(key);
+    const rim = new T.DirectionalLight(0x9b7cff, .7); rim.position.set(-20, 6, -18); sc.add(rim);
+    this.coreLight = new T.PointLight(0x4d8dff, 40, 28, 2); this.coreLight.position.set(0, 3, 0); sc.add(this.coreLight);
+    const pts = (n, rMin, rMax, size, color, op, fog) => { const a = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, rr = rMin + Math.random() * (rMax - rMin), s = Math.sqrt(1 - u * u); a[i * 3] = rr * s * Math.cos(th); a[i * 3 + 1] = rr * u * .7; a[i * 3 + 2] = rr * s * Math.sin(th); } const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(a, 3)); return new T.Points(g, new T.PointsMaterial({ size, color, transparent: true, opacity: op, depthWrite: false, fog })); };
+    this.stars = pts(hi ? 3800 : 600, 450, 1300, 2.6, 0xd6e2ff, .9, false); sc.add(this.stars);
+    this.stars2 = pts(hi ? 500 : 1, 450, 1300, 4, 0x9fb8ff, .7, false); sc.add(this.stars2);
+    this.dust = pts(hi ? 700 : 1, 6, 70, .12, 0x6fe3ff, .5, true); sc.add(this.dust);
+    const planet = new T.Mesh(new T.SphereGeometry(70, 64, 48), new T.MeshStandardMaterial({ color: 0x0d1d4a, roughness: .9, metalness: 0, fog: false })); planet.position.set(-260, 30, -420); sc.add(planet);
+    const pring = new T.Mesh(new T.TorusGeometry(110, .6, 4, 160), new T.MeshBasicMaterial({ color: 0x4d8dff, transparent: true, opacity: .35, fog: false })); pring.position.copy(planet.position); pring.rotation.set(1.3, .3, 0); sc.add(pring);
+    const moon2 = new T.Mesh(new T.SphereGeometry(16, 48, 32), new T.MeshStandardMaterial({ color: 0x2b1f55, roughness: .9, fog: false })); moon2.position.set(300, -40, -320); sc.add(moon2);
+    const grid = new T.PolarGridHelper(46, 24, 10, 96, 0x1d3a7a, 0x0f2148); grid.position.y = -1.3; grid.material.transparent = true; grid.material.opacity = .55; sc.add(grid);
+    const metal = new T.MeshStandardMaterial({ color: 0x0b1328, metalness: .75, roughness: .35 });
+    const plat = new T.Mesh(new T.CylinderGeometry(4.2, 4.7, .5, 64), metal); plat.position.y = -.25; sc.add(plat);
+    const plat2 = new T.Mesh(new T.CylinderGeometry(5.6, 5.9, .2, 64), metal); plat2.position.y = -.6; sc.add(plat2);
+    this.coreMats = [];
+    const cm = () => { const m = new T.MeshBasicMaterial({ color: 0x4d8dff, transparent: true, opacity: .9 }); this.coreMats.push(m); return m; };
+    const ring1 = new T.Mesh(new T.TorusGeometry(4.25, .035, 8, 160), cm()); ring1.rotation.x = Math.PI / 2; ring1.position.y = .01; sc.add(ring1);
+    const seg = new T.Group(); seg.rotation.x = -Math.PI / 2; seg.position.y = -.48;
+    const segM = new T.MeshBasicMaterial({ color: 0x6fe3ff, transparent: true, opacity: .55, side: T.DoubleSide });
+    for (let k = 0; k < 12; k++) seg.add(new T.Mesh(new T.RingGeometry(5.0, 5.18, 2, 1, k * Math.PI / 6, Math.PI / 9), segM));
+    sc.add(seg);
+    const gyro = new T.Group(); gyro.position.y = 1.7; sc.add(gyro);
+    const gy = [2.3, 2.6, 2.9].map((rr, k) => { const m = new T.Mesh(new T.TorusGeometry(rr, .014, 6, 160), cm()); m.rotation.set(Math.PI / 2 + k * .5, k * .7, 0); gyro.add(m); return m; });
+    this.coreIco = new T.Mesh(new T.IcosahedronGeometry(.42, 0), new T.MeshBasicMaterial({ color: 0x4d8dff, wireframe: true })); this.coreMats.push(this.coreIco.material); this.coreIco.position.y = 4.3; sc.add(this.coreIco);
+    const coreIn = new T.Mesh(new T.SphereGeometry(.16, 16, 12), new T.MeshBasicMaterial({ color: 0xe6edfb })); coreIn.position.y = 4.3; sc.add(coreIn);
+    // avatar hologram placeholder (swap for GLB)
+    const holo = new T.MeshBasicMaterial({ color: 0x6fe3ff, wireframe: true, transparent: true, opacity: .3 });
+    const solid = new T.MeshStandardMaterial({ color: 0x0a1430, metalness: .3, roughness: .6, transparent: true, opacity: .9 });
+    const av = new T.Group(); sc.add(av);
+    const body = new T.Mesh(new T.CapsuleGeometry(.48, 1.4, 6, 18), solid); body.position.y = 1.2; av.add(body);
+    const bodyW = new T.Mesh(new T.CapsuleGeometry(.52, 1.4, 6, 18), holo); bodyW.position.y = 1.2; av.add(bodyW);
+    const head = new T.Mesh(new T.SphereGeometry(.34, 24, 16), solid); head.position.y = 2.62; av.add(head);
+    const headW = new T.Mesh(new T.SphereGeometry(.37, 16, 12), holo); headW.position.y = 2.62; av.add(headW);
+    const hair = new T.Mesh(new T.SphereGeometry(.4, 24, 16, 0, Math.PI * 2, 0, Math.PI * .62), new T.MeshStandardMaterial({ color: 0x7a1f2e, roughness: .7 })); hair.position.y = 2.66; hair.rotation.x = -.25; av.add(hair);
+    const hairBack = new T.Mesh(new T.CapsuleGeometry(.3, .7, 4, 12), hair.material); hairBack.position.set(0, 2.15, -.2); av.add(hairBack);
+    const glasses = new T.Group(); glasses.position.set(0, 2.66, .33); av.add(glasses);
+    [-.13, .13].forEach(x => { const g = new T.Mesh(new T.TorusGeometry(.09, .012, 6, 24), new T.MeshBasicMaterial({ color: 0x6fe3ff })); g.position.x = x; glasses.add(g); });
+    const scan = new T.Mesh(new T.CylinderGeometry(.75, .75, .02, 40, 1, true), new T.MeshBasicMaterial({ color: 0x6fe3ff, transparent: true, opacity: .5, side: T.DoubleSide })); av.add(scan);
+    this.anchors['s-about'] = new T.Vector3(0, 1.6, 0); this.labelOff['s-about'] = 3.5;
+    const aHit = new T.Mesh(new T.CylinderGeometry(1.2, 1.2, 3.5, 12), new T.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })); aHit.position.y = 1.5; aHit.userData.id = 's-about'; sc.add(aHit); this.hits.push(aHit);
+    // tunnel
+    this.tunnel = new T.Group(); this.tunnelMat = new T.MeshBasicMaterial({ color: 0x4d8dff, transparent: true, opacity: .18, fog: false });
+    const tunM2 = new T.MeshBasicMaterial({ color: 0xa594ff, transparent: true, opacity: .12, fog: false }); this.tunM2 = tunM2;
+    for (let k = 0; k < (hi ? 46 : 22); k++) { const m = new T.Mesh(new T.TorusGeometry(k % 4 === 0 ? 8 : 7, k % 4 === 0 ? .06 : .03, 6, 72), k % 7 === 3 ? tunM2 : this.tunnelMat); m.position.set(0, 5, 70 + k * 13); this.tunnel.add(m); }
+    sc.add(this.tunnel);
+    this.anims.push((t, dt) => {
+      seg.rotation.z = t * .08; gy.forEach((m, k) => { m.rotation.z = t * (.2 + k * .12) * (k % 2 ? -1 : 1); m.rotation.y += dt * .05 * (k + 1); });
+      this.coreIco.rotation.set(t * .4, t * .6, 0); this.coreIco.position.y = 4.3 + Math.sin(t * 1.2) * .08; coreIn.position.y = this.coreIco.position.y;
+      scan.position.y = .2 + ((t * .35) % 1) * 2.8; scan.material.opacity = .45 * (1 - ((t * .35) % 1));
+      av.position.y = Math.sin(t * .9) * .04; this.dust.rotation.y = t * .01; planet.rotation.y = t * .004;
+      this.tunnel.children.forEach((m, k) => { m.rotation.z = t * (k % 2 ? .3 : -.2); });
+    });
+    this.coreColor = new T.Color(0x4d8dff); this.coreGoal = new T.Color(0x4d8dff);
+    this.rig = { yaw: 0, pitch: .3, dist: 32, target: new T.Vector3(0, 2, 0), gYaw: 0, gPitch: .3, gDist: 32, gTarget: new T.Vector3(0, 2, 0) };
+    this.ray = new T.Raycaster(); this.ndc = new T.Vector2(-9, -9); this.v = new T.Vector3();
+    this.bindPointer(r.domElement);
+    this.sceneReady = true; this.buildWorlds(); this.applyTier(tier);
+    if (this.state.phase === 'world' && !this.intro) this.snapRig();
+    this.startLoop();
+  }
+  startLoop() { if (this.looping || !this.renderer) return; this.looping = true; this.paused = false; this.last = performance.now(); this.raf = requestAnimationFrame(this.tick); }
+  stopLoop() { this.looping = false; this.paused = true; cancelAnimationFrame(this.raf); }
+  buildWorlds() {
+    if (!this.sceneReady || !this.D || this.worldsBuilt) return; this.worldsBuilt = true;
+    const T = this.THREE, sc = this.scene, lite = this.state.tier !== 'high';
+    const H = {
+      std: (c, o = {}) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .5, metalness: .4 }, o)),
+      basic: (c, op = 1, o = {}) => new T.MeshBasicMaterial(Object.assign({ color: c, transparent: op < 1, opacity: op }, o)),
+      edges: (m, c, op = .6) => { if (lite) return m; m.add(new T.LineSegments(new T.EdgesGeometry(m.geometry), new T.LineBasicMaterial({ color: c, transparent: true, opacity: op }))); return m; },
+      box: (w, h, d, mat) => new T.Mesh(new T.BoxGeometry(w, h, d), mat)
+    };
+    const hitM = new T.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+    const Y = [1.2, 3.4, .4, 2.4, 2.6, 1.0];
+    this.D.PROJECTS.forEach((p, i) => {
+      const ang = i / 6 * Math.PI * 2 + Math.PI / 6, R = 19, g = new T.Group();
+      g.position.set(Math.sin(ang) * R, Y[i], Math.cos(ang) * R); g.rotation.y = ang;
+      const col = new T.Color(p.color); this.colors[p.id] = p.color;
+      const base = new T.Mesh(new T.CylinderGeometry(2.8, 3.05, .18, 48), H.std(0x0a1226, { metalness: .75, roughness: .4 })); base.position.y = -.09; g.add(base);
+      const ringM = H.basic(col, .3); const ring = new T.Mesh(new T.TorusGeometry(3.35, .025, 6, 120), ringM); ring.rotation.x = Math.PI / 2; g.add(ring);
+      const hit = new T.Mesh(new T.SphereGeometry(4.2, 12, 8), hitM); hit.position.y = 1.6; hit.userData.id = p.id; g.add(hit); this.hits.push(hit);
+      const fn = this['w_' + p.id]; if (fn) fn.call(this, T, g, col, H);
+      const bs = p.id === 'simav' ? 1.35 : 1; g.userData = { id: p.id, s: bs, base: bs, ringM }; g.scale.setScalar(bs);
+      this.worlds.push(g); sc.add(g);
+      this.anchors[p.id] = g.position.clone().add(new T.Vector3(0, 1.4 * bs, 0)); this.labelOff[p.id] = 3.6 * bs;
+    });
+    // sector: systems constellation
+    const cg = new T.Group(); cg.position.set(-32, 11, -24); sc.add(cg);
+    const lp = [], tp = [];
+    this.D.SKILLS.forEach((c, i) => { const a = i / this.D.SKILLS.length * Math.PI * 2; const hp = new T.Vector3(Math.cos(a) * 4.6, Math.sin(a * 2) * 1.2, Math.sin(a) * 4.6); lp.push(0, 0, 0, hp.x, hp.y, hp.z);
+      const hub = new T.Mesh(new T.OctahedronGeometry(.28), H.basic(0x6fe3ff)); hub.position.copy(hp); cg.add(hub);
+      c.techs.forEach((t, j) => { const b = j / c.techs.length * Math.PI * 2; const q = hp.clone().add(new T.Vector3(Math.cos(b) * 1.3, Math.sin(b) * 1.3 * .8, Math.sin(b + i) * .9)); tp.push(q.x, q.y, q.z); lp.push(hp.x, hp.y, hp.z, q.x, q.y, q.z); }); });
+    const lg = new T.BufferGeometry(); lg.setAttribute('position', new T.Float32BufferAttribute(lp, 3)); cg.add(new T.LineSegments(lg, new T.LineBasicMaterial({ color: 0x4d8dff, transparent: true, opacity: .35 })));
+    const tg = new T.BufferGeometry(); tg.setAttribute('position', new T.Float32BufferAttribute(tp, 3)); cg.add(new T.Points(tg, new T.PointsMaterial({ size: .22, color: 0xe6edfb })));
+    const cc = new T.Mesh(new T.IcosahedronGeometry(.6, 1), H.basic(0x4d8dff, .8, { wireframe: true })); cg.add(cc);
+    this.anims.push(t => { cg.rotation.y = t * .06; });
+    this.sector('s-systems', cg.position, 4.2, 6);
+    // sector: lab
+    const lab = new T.Group(); lab.position.set(31, 3, -25); sc.add(lab);
+    const lb = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(4, 3, 4)), new T.LineBasicMaterial({ color: 0xa594ff })); lb.position.y = 1.5; lab.add(lb);
+    const cubes = [];
+    for (let k = 0; k < 7; k++) { const c = H.box(.35, .35, .35, H.std(0x2b2160, { emissive: 0x6a52ff, emissiveIntensity: .5 })); c.position.set((Math.random() - .5) * 2.6, .6 + Math.random() * 2, (Math.random() - .5) * 2.6); lab.add(c); cubes.push(c); }
+    const term = new T.Mesh(new T.PlaneGeometry(1.6, 1), H.basic(0x6fe3ff, .25, { side: T.DoubleSide })); term.position.set(0, 1.6, 2.01); lab.add(term);
+    this.anims.push(t => cubes.forEach((c, k) => { c.rotation.set(t * .5 + k, t * .4, 0); c.position.y += Math.sin(t * 1.3 + k) * .003; }));
+    this.sector('s-lab', lab.position, 4, 4);
+    // sector: contact
+    const ct = new T.Group(); ct.position.set(0, 2, -40); sc.add(ct);
+    const mast = new T.Mesh(new T.CylinderGeometry(.08, .14, 7, 12), H.std(0x1a2440, { metalness: .8 })); mast.position.y = 2.5; ct.add(mast);
+    const dish = new T.Mesh(new T.SphereGeometry(1.2, 32, 16, 0, Math.PI * 2, 0, Math.PI * .35), H.std(0x18223c, { metalness: .8, side: T.DoubleSide })); dish.position.y = 6.4; dish.rotation.x = Math.PI * .85; ct.add(dish);
+    const waves = [0, 1, 2].map(() => { const w = new T.Mesh(new T.TorusGeometry(1, .02, 6, 64), H.basic(0xff6fb8, .6)); w.position.y = 6.6; w.rotation.x = Math.PI / 2; ct.add(w); return w; });
+    this.anims.push(t => waves.forEach((w, k) => { const u = (t * .4 + k / 3) % 1; w.scale.setScalar(.6 + u * 3.4); w.material.opacity = .6 * (1 - u); w.position.y = 6.6 + u * 1.5; }));
+    this.sector('s-contact', ct.position, 6.8, 5);
+  }
+  sector(id, pos, labelOff, rad) { const T = this.THREE; this.anchors[id] = pos.clone().add(new T.Vector3(0, 1, 0)); this.labelOff[id] = labelOff; const h = new T.Mesh(new T.SphereGeometry(rad, 10, 8), new T.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })); h.position.copy(pos).add(new T.Vector3(0, 2, 0)); h.userData.id = id; this.scene.add(h); this.hits.push(h); }
+
+  w_gold(T, g, col, H) {
+    const metal = H.std(0x1a1d27, { metalness: .85, roughness: .32 });
+    [[-.9, .6, -.6, 1.1, 1.2, 1], [.55, .45, -.8, .9, .9, .8], [.15, 1, .2, .6, 2, .6]].forEach(b => { const m = H.box(b[3], b[4], b[5], metal); m.position.set(b[0], b[1], b[2]); H.edges(m, col, .75); g.add(m); });
+    [0xe8a090, 0xf0c050, 0xe9e7ef, 0x9aa0a8].forEach((c, k) => { const m = new T.Mesh(new T.CylinderGeometry(.22, .22, .42, 24), H.std(c, { metalness: .95, roughness: .22, emissive: c, emissiveIntensity: .12 })); m.position.set(-1.25 + k * .62, .21, 1.55); g.add(m); });
+    const scl = new T.Mesh(new T.CylinderGeometry(.55, .6, .12, 32), metal); scl.position.set(1.6, .06, 1.1); g.add(scl);
+    const disp = new T.Mesh(new T.RingGeometry(.3, .45, 32), H.basic(col, .85, { side: T.DoubleSide })); disp.rotation.x = -Math.PI / 2; disp.position.set(1.6, .13, 1.1); g.add(disp);
+    const panel = H.edges(new T.Mesh(new T.PlaneGeometry(1.3, .8), H.basic(col, .14, { side: T.DoubleSide })), col, .9); panel.position.set(0, 2.9, .6); g.add(panel);
+    const fm = H.basic(col); const cubes = [0, 1, 2].map(() => { const c = H.box(.14, .14, .14, fm); g.add(c); return c; });
+    this.anims.push(t => { cubes.forEach((c, k) => { const u = (t * .22 + k / 3) % 1; c.position.set(-2.2 + u * 4.4, .35 + Math.sin(u * Math.PI) * .9, .95); c.rotation.y = t; }); disp.rotation.z = t; });
+  }
+  w_evermoon(T, g, col, H) {
+    const moon = new T.Mesh(new T.SphereGeometry(1.6, 48, 32), H.std(0xe2dbff, { roughness: .95, metalness: 0, emissive: 0x3b2f70, emissiveIntensity: .45 })); moon.position.y = 2.4; g.add(moon);
+    [[.6, .5, 1.4], [-.8, .9, 1.2], [.2, -.6, 1.5]].forEach(([x, y, z]) => { const c = new T.Mesh(new T.CircleGeometry(.22, 24), H.basic(0xb7a8ec, .6)); c.position.set(x, 2.4 + y, z); c.lookAt(x * 3, 2.4 + y * 3, z * 3); g.add(c); });
+    const orb = new T.Group(); orb.position.y = 2.4; g.add(orb);
+    const cm = H.basic(0xf4b8da, .45, { side: T.DoubleSide });
+    for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; const c = H.edges(new T.Mesh(new T.PlaneGeometry(.42, .58), cm), 0xffd6ec, .9); c.position.set(Math.cos(a) * 2.6, Math.sin(a * 2) * .4, Math.sin(a) * 2.6); c.lookAt(0, c.position.y, 0); orb.add(c); }
+    const halo = new T.Mesh(new T.TorusGeometry(2.1, .018, 6, 128), H.basic(0xc7b8ff, .6)); halo.rotation.x = 1.2; halo.position.y = 2.4; g.add(halo);
+    this.anims.push(t => { orb.rotation.y = t * .22; moon.position.y = 2.4 + Math.sin(t * .8) * .12; });
+  }
+  w_pizza(T, g, col, H) {
+    const floor = new T.Mesh(new T.CylinderGeometry(2.3, 2.3, .06, 6), H.std(0x141022, { metalness: .5 })); floor.position.y = .03; g.add(floor);
+    const st = [[-1.1, -1.1, 0x6fe3ff], [1.1, -1.1, 0xff9b6a], [1.1, 1.1, 0xe7b85c], [-1.1, 1.1, 0xa594ff]];
+    st.forEach(([x, z, c]) => { const m = H.edges(H.box(.7, .55, .7, H.std(0x151a2c, { metalness: .6 })), c, .95); m.position.set(x, .33, z); g.add(m); const top = new T.Mesh(new T.PlaneGeometry(.5, .5), H.basic(c, .4, { side: T.DoubleSide })); top.rotation.x = -Math.PI / 2; top.position.set(x, .62, z); g.add(top); });
+    const pts = [st[0], st[1], st[2], [0, 0]].map(([x, z]) => new T.Vector3(x, .95, z));
+    const order = new T.Mesh(new T.SphereGeometry(.13, 16, 12), H.basic(col)); g.add(order);
+    const pulse = new T.Mesh(new T.TorusGeometry(1, .015, 6, 96), H.basic(0x6fe3ff, .6)); pulse.rotation.x = Math.PI / 2; pulse.position.y = .1; g.add(pulse);
+    this.anims.push(t => { const u = (t * .32) % 1 * 3, sI = Math.floor(u), f = u - sI, e = f < .5 ? 2 * f * f : 1 - Math.pow(-2 * f + 2, 2) / 2; order.position.lerpVectors(pts[sI], pts[sI + 1], e); order.position.y += Math.sin(f * Math.PI) * .4; const p = (t * .6) % 1; pulse.scale.setScalar(.1 + p * 2.3); pulse.material.opacity = .6 * (1 - p); });
+  }
+  w_ibagame(T, g, col, H) {
+    const map = H.box(4.2, .08, 4.2, H.std(0x0a1d1c, { metalness: .3, roughness: .8 })); map.position.y = .04; g.add(map);
+    const grid = new T.GridHelper(4.2, 12, col, 0x14403a); grid.position.y = .085; grid.material.transparent = true; grid.material.opacity = .55; g.add(grid);
+    const rp = [[-1.8, 1.6], [-1.2, -.8], [0, -.2], [.9, -1.1], [1.6, .2], [.4, 1.1]].map(([x, z]) => new T.Vector3(x, .11, z));
+    g.add(new T.Line(new T.BufferGeometry().setFromPoints(rp), new T.LineBasicMaterial({ color: col })));
+    const pins = [rp[1], rp[3], rp[5]].map(v => { const c = new T.Mesh(new T.ConeGeometry(.13, .42, 16), H.basic(col)); c.rotation.x = Math.PI; c.position.set(v.x, .35, v.z); g.add(c); const s = new T.Mesh(new T.SphereGeometry(.12, 16, 12), H.basic(0xe6edfb)); s.position.set(v.x, .62, v.z); g.add(s); return [c, s]; });
+    const ph = H.box(.62, 1.1, .06, H.std(0x0d1222, { metalness: .7 })); ph.position.set(1.7, 1.2, 1.5); ph.rotation.y = -.5; const scr = new T.Mesh(new T.PlaneGeometry(.52, .96), H.basic(col, .4)); scr.position.z = .035; ph.add(scr); g.add(ph);
+    this.anims.push(t => { pins.forEach(([c, s], k) => { const y = Math.sin(t * 2 + k) * .06; c.position.y = .35 + y; s.position.y = .62 + y; }); ph.position.y = 1.2 + Math.sin(t) * .08; scr.material.opacity = .3 + Math.sin(t * 3) * .1; });
+  }
+  w_simav(T, g, col, H) {
+    const bm = H.std(0x0b1630, { metalness: .6, roughness: .4 }); let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) { if (i === 2 || j === 3) continue; const h = .25 + rnd() * 1.5; const b = H.edges(H.box(.5, h, .5, bm), col, .45); b.position.set((i - 2.5) * .72, h / 2 + .02, (j - 2.5) * .72); g.add(b); }
+    const core = new T.Mesh(new T.IcosahedronGeometry(.55, 1), H.basic(col, .85, { wireframe: true })); core.position.y = 3; g.add(core);
+    const ci = new T.Mesh(new T.SphereGeometry(.2, 16, 12), H.basic(0x6fe3ff)); ci.position.y = 3; g.add(ci);
+    const hs = [[-1.6, .36], [1.2, .36], [-.36, -1.4], [-.36, 1.6]].map(([x, z]) => { const s = new T.Mesh(new T.SphereGeometry(.1, 12, 8), H.basic(0xff5fb4)); s.position.set(x, .15, z); g.add(s); const ln = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(x, .15, z), new T.Vector3(0, 3, 0)]), new T.LineBasicMaterial({ color: col, transparent: true, opacity: .25 })); g.add(ln); return s; });
+    const car = H.box(.24, .12, .13, H.basic(0xe6edfb)); car.position.y = .1; g.add(car);
+    const radar = new T.Mesh(new T.TorusGeometry(1, .012, 6, 96), H.basic(col, .6)); radar.rotation.x = Math.PI / 2; radar.position.y = .05; g.add(radar);
+    this.anims.push(t => { core.rotation.set(t * .3, t * .5, 0); hs.forEach((s, k) => s.scale.setScalar(1 + Math.sin(t * 3 + k * 1.7) * .45)); car.position.x = -2.2 + ((t * .25) % 1) * 4.4; car.position.z = .36; const p = (t * .35) % 1; radar.scale.setScalar(.2 + p * 2.6); radar.material.opacity = .6 * (1 - p); });
+  }
+  w_zytime(T, g, col, H) {
+    const pm = [];
+    for (let k = 0; k < 7; k++) { const a = (k / 6 - .5) * Math.PI * 1.1; const m = H.basic(col, .22, { side: T.DoubleSide }); pm.push(m); const p = H.edges(new T.Mesh(new T.PlaneGeometry(.72, .48), m), col, .9); p.position.set(Math.sin(a) * 1.9, 1.15 + (k % 2) * .55, -Math.cos(a) * 1.9 + .3); p.lookAt(0, p.position.y, .3); g.add(p); }
+    const desk = H.box(1.6, .35, .5, H.std(0x111a30, { metalness: .7 })); desk.position.set(0, .2, -.2); g.add(desk);
+    const clock = new T.Mesh(new T.TorusGeometry(.8, .025, 6, 96), H.basic(col, .8)); clock.position.set(0, 2.4, .2); g.add(clock);
+    const tickS = new T.Mesh(new T.SphereGeometry(.08, 12, 8), H.basic(0xe6edfb)); g.add(tickS);
+    const slots = []; for (let k = 0; k < 6; k++) { const m = H.basic(col, .25); const s = H.box(.26, .08, .26, m); s.position.set(-.85 + k * .34, .06, 1.2); g.add(s); slots.push(m); }
+    this.anims.push(t => { const a = t * .9; tickS.position.set(Math.cos(a) * .8, 2.4 + Math.sin(a) * .8, .2); const on = Math.floor(t * 1.1) % 6; slots.forEach((m, k) => m.opacity = k === on ? .95 : .2); pm.forEach((m, k) => m.opacity = .18 + Math.max(0, Math.sin(t * 1.5 + k)) * .15); });
+  }
+
+  bindPointer(el) {
+    this.ptrs = new Map();
+    const setNdc = e => { const r = el.getBoundingClientRect(); this.ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); this.needPick = true; };
+    el.addEventListener('pointerdown', e => { try { el.setPointerCapture(e.pointerId); } catch (x) {} this.ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); this.dragMoved = 0; this.pinch = null; setNdc(e); if (this.state.settings) this.setState({ settings: false }); });
+    el.addEventListener('pointermove', e => {
+      setNdc(e); const p = this.ptrs.get(e.pointerId); if (!p) return;
+      const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+      if (this.ptrs.size === 2) { const [a, b] = [...this.ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (this.pinch) this.zoom((this.pinch - d) * .01); this.pinch = d; this.dragMoved += 10; return; }
+      this.dragMoved += Math.abs(dx) + Math.abs(dy);
+      if (this.state.phase !== 'world' || this.intro) return;
+      const r = this.rig; r.gYaw -= dx * .005; r.gPitch = Math.max(-.05, Math.min(1.25, r.gPitch + dy * .004));
+    });
+    const up = e => { const had = this.ptrs.has(e.pointerId); this.ptrs.delete(e.pointerId); if (this.ptrs.size < 2) this.pinch = null; if (had && e.type === 'pointerup' && this.dragMoved < 6 && this.state.phase === 'world' && !this.intro) { this.pick(); if (this.hoverId) this.activate(this.hoverId); } };
+    el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+    el.addEventListener('wheel', e => { e.preventDefault(); this.zoom(e.deltaY * .0012); }, { passive: false });
+  }
+  zoom(d) { if (!this.rig) return; this.rig.gDist = Math.max(5, Math.min(75, this.rig.gDist * (1 + d))); }
+  pick() {
+    if (!this.ray) return; this.ray.setFromCamera(this.ndc, this.cam);
+    const h = this.ray.intersectObjects(this.hits, false); const id = h.length ? h[0].object.userData.id : null;
+    if (id !== this.hoverId) { this.hoverId = id; this.renderer.domElement.style.cursor = id ? 'pointer' : 'grab'; if (id) this.sfx('hover'); }
+  }
+  activate(id) { if (id.startsWith('s-')) this.openPanel({ 's-about': 'about', 's-systems': 'systems', 's-lab': 'lab', 's-contact': 'contact' }[id]); else this.openProject(id); }
+  rigPos() { const r = this.rig, cp = Math.cos(r.pitch); return { x: r.target.x + r.dist * cp * Math.sin(r.yaw), y: r.target.y + r.dist * Math.sin(r.pitch), z: r.target.z + r.dist * cp * Math.cos(r.yaw) }; }
+  snapRig() { if (!this.rig) return; const r = this.rig; r.yaw = r.gYaw; r.pitch = r.gPitch; r.dist = r.gDist; r.target.copy(r.gTarget); if (this.tunnel) this.tunnel.visible = false; }
+  startIntro() { this.intro = { t: 0, dur: 3.4, t0: performance.now() }; this.tunnel.visible = true; this.sfx('teleport'); clearTimeout(this.introGuard); this.introGuard = setTimeout(() => { if (this.intro) { this.intro = null; this.tunnel.visible = false; this.cam.fov = 55; this.snapRig(); this.arrive(false); } }, 6000); }
+  startBurst() {
+    const T = this.THREE, n = 600, a = new Float32Array(n * 3), v = [];
+    for (let i = 0; i < n; i++) { const d = new T.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize().multiplyScalar(Math.random()); a.set([d.x * 2, d.y * 1.2, d.z], i * 3); v.push(d); }
+    const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(a, 3));
+    const p = new T.Points(g, new T.PointsMaterial({ size: .06, color: 0x6fe3ff, transparent: true, opacity: 1, depthWrite: false, fog: false }));
+    p.position.copy(this.cam.position).add(new T.Vector3(0, 0, -6)); this.scene.add(p); this.burst = { p, v, t: 0 };
+  }
+  flyTo(id, dist, pitch) {
+    const a = this.anchors[id]; if (!a || !this.rig) return; const r = this.rig; r.gTarget.copy(a);
+    let yaw = Math.atan2(a.x, a.z); while (yaw - r.gYaw > Math.PI) yaw -= Math.PI * 2; while (yaw - r.gYaw < -Math.PI) yaw += Math.PI * 2;
+    r.gYaw = yaw; r.gDist = dist; r.gPitch = pitch; this.sfx('teleport');
+  }
+  overview() { if (!this.rig) return; const r = this.rig; r.gTarget.set(0, 2, 0); r.gDist = this.state.isMobile ? 58 : 44; r.gPitch = .55; }
+  focusSector(id) {
+    if (!this.rig) return; const r = this.rig;
+    if (id === 'about') { r.gTarget.set(0, 2, 0); r.gDist = 8.5; r.gPitch = .14; }
+    else if (id === 'projects' || id === 'arch') this.overview();
+    else if (id === 'systems') this.flyTo('s-systems', 15, .2);
+    else if (id === 'lab') this.flyTo('s-lab', 13, .25);
+    else if (id === 'contact') this.flyTo('s-contact', 16, .2);
+  }
+  panelW() { return (this.state.panel === 'systems' || this.state.panel === 'arch') ? 680 : 480; }
+  resizeGL() { if (!this.renderer) return; const h = this.canvasHost.current; const W = h.clientWidth || innerWidth, H = h.clientHeight || innerHeight; this.W = W; this.H = H; this.renderer.setSize(W, H); this.cam.aspect = W / H; this.cam.updateProjectionMatrix(); }
+  applyTier(t) { if (!this.renderer) return; this.renderer.setPixelRatio(1); this.goodFrames = 0; this.dust.visible = t === 'high'; this.stars2.visible = t === 'high'; this.resizeGL(); }
+  setTier(t) {
+    this.setState({ tier: t });
+    if (t === '2d') { this.stopLoop(); return; }
+    if (!this.renderer) { if (this.state.phase === 'world') this.initScene(t).then(() => this.snapRig()).catch(e => console.warn('[nexus] 3D init failed: ' + (e && e.message || e))); return; }
+    this.applyTier(t); this.startLoop(); if (this.state.phase === 'world' && !this.intro) { this.snapRig(); }
+  }
+
+  tick = (now) => {
+    if (!this.looping) return;
+    this.raf = requestAnimationFrame(this.tick);
+    if (document.hidden) { this.last = now; return; }
+    const raw = now - (this.last || now);
+    if (raw > 200 && !document.hidden) { this.longN = (this.longN || 0) + 1; } else this.longN = 0;
+    if (this.longN >= 2 && (this.props.perfMode || 'auto') === 'auto') { this.longN = 0; if (this.state.tier === 'high') { this.setTier('lite'); this.toast('RENDIMIENTO BAJO · PERFIL 3D LITE ACTIVADO'); } else { this.setTier('2d'); this.toast('PERFORMANCE MODE · VISTA 2D ACTIVADA'); return; } }
+    if (this.skipNext) { this.skipNext = false; this.last = now; return; }
+    const dt = Math.min(.05, (now - (this.last || now)) / 1000); this.last = now; this.time += dt; const t = this.time;
+    const s = this.state, cam = this.cam, r = this.rig, W = this.W, H = this.H;
+    this.fc++; this.ft += dt;
+    if (this.ft >= .5) { const fps = Math.round(this.fc / this.ft); this.fc = 0; this.ft = 0; if (this.fpsRef.current) this.fpsRef.current.textContent = fps;
+      if ((this.props.perfMode || 'auto') === 'auto' && s.arrived) { this.lowN = fps < (s.tier === 'high' ? 28 : 16) ? (this.lowN || 0) + 1 : 0;
+        if (this.lowN >= 8) { this.lowN = 0; if (s.tier === 'high') { this.setTier('lite'); this.toast('RENDIMIENTO BAJO · PERFIL 3D LITE ACTIVADO'); } else if (s.tier === 'lite') { this.setTier('2d'); this.toast('PERFORMANCE MODE · VISTA 2D ACTIVADA'); } } } }
+    if (this.intro) {
+      const I = this.intro; I.t = (now - I.t0) / 1000; const u = Math.min(1, I.t / I.dur), e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; const end = this.rigPos();
+      cam.position.set(end.x * e, 5 + (end.y - 5) * e, 700 + (end.z - 700) * e); cam.fov = 55 + Math.sin(u * Math.PI) * 28; cam.lookAt(0, 2, 0);
+      this.tunnelMat.opacity = .2 + Math.sin(Math.min(1, u * 1.25) * Math.PI) * .7; this.tunM2.opacity = this.tunnelMat.opacity * .7;
+      if (u >= 1) { this.intro = null; clearTimeout(this.introGuard); this.tunnel.visible = false; cam.fov = 55; this.arrive(false); }
+    } else if (s.phase === 'world') {
+      const typing = document.activeElement && document.activeElement.tagName === 'INPUT';
+      if (s.mode === 'exploration' && !typing) {
+        const k = this.keys; let fx = this.joy.x, fz = -this.joy.y;
+        if (k.KeyW || k.ArrowUp) fz += 1; if (k.KeyS || k.ArrowDown) fz -= 1; if (k.KeyA || k.ArrowLeft) fx -= 1; if (k.KeyD || k.ArrowRight) fx += 1;
+        if (fx || fz) { const sp = (k.ShiftLeft ? 30 : 15) * dt, sy = Math.sin(r.yaw), cy = Math.cos(r.yaw); r.gTarget.x += (-sy * fz + cy * fx) * sp; r.gTarget.z += (-cy * fz - sy * fx) * sp; const l = Math.hypot(r.gTarget.x, r.gTarget.z); if (l > 55) { r.gTarget.x *= 55 / l; r.gTarget.z *= 55 / l; } }
+        if (k.KeyE) r.gTarget.y = Math.min(20, r.gTarget.y + 8 * dt); if (k.KeyQ) r.gTarget.y = Math.max(0, r.gTarget.y - 8 * dt);
+      }
+      if (s.mode === 'system' && !s.reduced) r.gYaw += dt * .05;
+      const a = s.reduced ? 1 : 1 - Math.exp(-dt * 3);
+      r.yaw += (r.gYaw - r.yaw) * a; r.pitch += (r.gPitch - r.pitch) * a; r.dist += (r.gDist - r.dist) * a; r.target.lerp(r.gTarget, a);
+      const p = this.rigPos(); cam.position.set(p.x, p.y, p.z); cam.lookAt(r.target);
+    } else { cam.position.z = 700 - Math.sin(t * .2) * 6; cam.lookAt(0, 2, 0); }
+    const gx = (s.panel && !s.isMobile) ? (this.panelW() + 20) / 2 : 0, gyv = (s.panel && s.isMobile) ? H * .33 : (s.arrived && !s.panel && !s.isMobile ? 0 : 0);
+    const oa = s.reduced ? 1 : 1 - Math.exp(-dt * 4); this.off.x += (gx - this.off.x) * oa; this.off.y += (gyv - this.off.y) * oa;
+    cam.setViewOffset(W, H, this.off.x, this.off.y, W, H);
+    if (!s.reduced) this.anims.forEach(f => f(t, dt)); else if (!this.animOnce) { this.anims.forEach(f => f(1, 0)); this.animOnce = true; }
+    if (this.burst) { const B = this.burst; B.t += dt; const pa = B.p.geometry.attributes.position; for (let i = 0; i < B.v.length; i++) { pa.array[i * 3] += B.v[i].x * dt * 9; pa.array[i * 3 + 1] += B.v[i].y * dt * 9; pa.array[i * 3 + 2] += B.v[i].z * dt * 9; } pa.needsUpdate = true; B.p.material.opacity = Math.max(0, 1 - B.t / 1.1); if (B.t > 1.1) { this.scene.remove(B.p); B.p.geometry.dispose(); this.burst = null; } }
+    this.coreColor.lerp(this.coreGoal, .05); this.coreMats.forEach(m => m.color.copy(this.coreColor)); this.coreLight.color.copy(this.coreColor);
+    if (this.needPick && s.arrived) { this.needPick = false; this.pick(); }
+    this.worlds.forEach(w => { const on = w.userData.id === this.selected || w.userData.id === this.hoverId; const goal = w.userData.base * (on ? 1.1 : 1); w.userData.s += (goal - w.userData.s) * .1; w.scale.setScalar(w.userData.s); w.userData.ringM.opacity += ((on ? .95 : .3) - w.userData.ringM.opacity) * .1; });
+    const layer = this.labelLayer.current;
+    if (layer && s.arrived) layer.querySelectorAll('[data-lid]').forEach(el => {
+      const id = el.getAttribute('data-lid'), an = this.anchors[id]; if (!an) { el.style.transform = 'translate3d(-9999px,0,0)'; return; }
+      this.v.copy(an); this.v.y += this.labelOff[id] || 4; const d = this.v.distanceTo(cam.position); this.v.project(cam);
+      if (this.v.z > 1 || Math.abs(this.v.x) > 1.2 || Math.abs(this.v.y) > 1.2) { el.style.transform = 'translate3d(-9999px,0,0)'; return; }
+      const x = (this.v.x * .5 + .5) * W, y = (-this.v.y * .5 + .5) * H;
+      const ly = y - 20, inHud = s.isMobile ? (ly < 80 || y > H - 64) : (ly < 72 || (x < 250 && Math.abs(y - H / 2) < 190) || (x < 400 && y > H - 100) || (!s.panel && x > W - 440 && y > H - 340));
+      if (inHud) { el.style.transform = 'translate3d(-9999px,0,0)'; return; }
+      el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) translate(-50%,-100%)';
+      const sel = id === this.selected || id === this.hoverId; el.style.opacity = sel ? 1 : Math.max(.3, Math.min(.95, 1 - (d - 30) / 70)); el.style.borderColor = sel ? (this.colors[id] || '#6fe3ff') : 'rgba(110,160,255,.28)'; el.style.zIndex = sel ? 2 : 1;
+    });
+    const r0 = performance.now(); this.renderer.render(this.scene, cam); const rt = performance.now() - r0;
+    if (rt > 50) this.skipNext = true;
+    if (rt > 120) { this.slowN++; this.goodFrames = 0; } else { this.slowN = 0; this.goodFrames++; }
+    if (this.slowN >= 3 && (this.props.perfMode || 'auto') === 'auto') { this.slowN = 0; if (s.tier === 'high') { this.setTier('lite'); this.toast('RENDIMIENTO BAJO · PERFIL 3D LITE ACTIVADO'); } else { this.setTier('2d'); this.toast('PERFORMANCE MODE · VISTA 2D ACTIVADA'); } }
+    if (s.tier === 'high' && this.goodFrames === 90 && (devicePixelRatio || 1) > 1) { this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75)); this.resizeGL(); }
+  };
+
+  // ---------- actions ----------
+  handleKey(e) {
+    const tag = (e.target && e.target.tagName) || ''; const typing = tag === 'INPUT' || tag === 'TEXTAREA';
+    if (e.key === 'Escape') { if (this.state.secret) this.closeSecret(); else if (this.state.panel) this.closePanel(); return; }
+    if (typing) return;
+    if (this.state.phase === 'boot') { if (e.key === 'Enter' && this.state.bootDone) { e.preventDefault(); this.enter(false); } return; }
+    this.keys[e.code] = true;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const n = parseInt(e.key, 10); if (n >= 1 && n <= 6) this.openPanel(['about', 'projects', 'systems', 'arch', 'lab', 'contact'][n - 1]);
+    if (e.key === 'm' || e.key === 'M') this.setMode(this.state.mode === 'system' ? 'exploration' : 'system');
+  }
+  openPanel = (id) => { this.setState({ panel: id, settings: false, archSel: null }); this.sfx('open'); this.focusSector(id); this.selected = id === 'about' ? 's-about' : null; if (this.coreGoal) this.coreGoal.set(id === 'contact' ? 0xff6fb8 : id === 'lab' ? 0xa594ff : 0x4d8dff); if (id === 'lab' && !this.state.isMobile) setTimeout(() => this.termInputRef.current && this.termInputRef.current.focus({ preventScroll: true }), 400); };
+  openProject = (pid) => { this.setState({ panel: 'project', pid, flowStep: 0, settings: false }); this.sfx('activate'); this.flyTo(pid, pid === 'simav' ? 14 : 11, .32); this.selected = pid; const p = this.D && this.D.PROJECTS.find(x => x.id === pid); if (p && this.coreGoal) this.coreGoal.set(p.color); };
+  closePanel = () => { this.setState({ panel: null }); this.selected = null; if (this.coreGoal) this.coreGoal.set(0x4d8dff); this.sfx('close'); };
+  setMode(m) { this.setState({ mode: m, settings: false }); this.sfx('click'); if (m === 'system' && !this.state.panel) this.openPanel('projects'); if (m === 'system') this.overview(); }
+  openResume = () => { if (this.props.resumeUrl) window.open(this.props.resumeUrl, '_blank', 'noopener'); else this.toast('CV PENDIENTE · ARCHIVO AÚN NO VINCULADO'); this.sfx('click'); };
+  toast(msg) { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 3400); }
+  goHome = () => { this.closePanel(); this.overview(); };
+
+  ensureAudio() { if (!this.ac) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; this.ac = new AC(); this.master = this.ac.createGain(); this.master.gain.value = .6; this.master.connect(this.ac.destination); } if (this.ac.state === 'suspended') this.ac.resume(); }
+  blip(f, d, type, v, f2) { const ac = this.ac, t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f2 || f * 1.5, t + d); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g); g.connect(this.master); o.start(t); o.stop(t + d + .05); }
+  sfx(k) { if (!this.state.sound || !this.ac) return; try {
+    if (k === 'tick') this.blip(1800, .03, 'square', .012); else if (k === 'hover') this.blip(1400, .04, 'sine', .015); else if (k === 'click') this.blip(900, .05, 'triangle', .03);
+    else if (k === 'open') this.blip(420, .16, 'triangle', .04, 820); else if (k === 'close') this.blip(700, .14, 'triangle', .03, 380);
+    else if (k === 'activate') { this.blip(660, .1, 'sine', .04); setTimeout(() => this.ac && this.blip(990, .18, 'sine', .04), 90); }
+    else if (k === 'teleport') this.blip(160, .9, 'sine', .05, 1300);
+  } catch (e) {} }
+  startAmbient() { if (!this.ac || this.amb) return; const ac = this.ac, g = ac.createGain(), lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520; g.gain.value = 0; g.gain.linearRampToValueAtTime(.035, ac.currentTime + 2); lp.connect(g); g.connect(this.master); const os = [55, 82.4, 110.3].map((f, i) => { const o = ac.createOscillator(); o.type = i === 2 ? 'triangle' : 'sine'; o.frequency.value = f; o.detune.value = i * 4; o.connect(lp); o.start(); return o; }); this.amb = { g, os }; }
+  stopAmbient() { if (!this.amb) return; const { g, os } = this.amb; try { g.gain.linearRampToValueAtTime(0, this.ac.currentTime + .4); os.forEach(o => o.stop(this.ac.currentTime + .5)); } catch (e) {} this.amb = null; }
+  toggleSound = () => { const on = !this.state.sound; if (on) { this.ensureAudio(); this.setState({ sound: true }, () => { this.startAmbient(); this.sfx('activate'); }); } else { this.stopAmbient(); this.setState({ sound: false }); } };
+
+  runCmd(raw) {
+    const c = raw.trim(), low = c.toLowerCase(), D = this.D || {}, P = D.PROJECTS || [], out = [{ t: 'in', s: '> ' + c }]; const push = (s, t = 'out') => out.push({ s, t });
+    let after = null;
+    if (!c) return;
+    if (low === 'clear') { this.setState({ term: [], termIn: '' }); return; }
+    if (low === 'help') { ['about      quién soy', 'projects   base de datos de proyectos', 'skills     constelación de tecnologías', 'stats      números del sistema', 'github     perfil público', 'contact    canales de contacto', 'resume     descargar CV', 'open <n>   abrir proyecto 1–6 o sección', 'clear      limpiar terminal'].forEach(x => push(x)); push('Algunos directorios están ocultos.', 'dim'); }
+    else if (low === 'about' || low === 'whoami') { push('LINDA SOFIA MORENO — SYSTEMS ENGINEER', 'ok'); push('Construyo sistemas, experiencias y productos digitales.'); push('→ open about', 'dim'); }
+    else if (low === 'projects' || low === 'ls projects') { P.forEach((p, i) => push(p.code + '  ' + (p.name + '              ').slice(0, 15) + p.type)); push('→ open 1..6 para entrar a un mundo', 'dim'); }
+    else if (low === 'skills') { (D.SKILLS || []).forEach(k => push((k.name + '              ').slice(0, 16) + k.techs.length + ' nodes')); push('→ open systems', 'dim'); }
+    else if (low === 'stats') { const n = new Set((D.SKILLS || []).flatMap(k => k.techs.map(t => t[0]))).size; push('PROJECTS ....... 06'); push('TECH NODES ..... ' + n); push('MAIN LANGUAGES . Python · JavaScript · Java · Kotlin'); push('ARCH STYLES .... hexagonal · monolito modular · capas'); }
+    else if (low === 'github') { push('https://github.com/Sofira28', 'ok'); push('Nota: los repositorios personales son privados.', 'dim'); window.open('https://github.com/Sofira28', '_blank', 'noopener'); }
+    else if (low === 'contact') { push('GITHUB    github.com/Sofira28', 'ok'); push('EMAIL     [ placeholder ]', 'dim'); push('LINKEDIN  [ placeholder ]', 'dim'); after = () => this.openPanel('contact'); }
+    else if (low === 'resume' || low === 'cv') { this.openResume(); push('Solicitando CV...', 'dim'); }
+    else if (low === 'ls') push('about.txt   projects/   skills/   lab/');
+    else if (low === 'ls -a' || low === 'ls -la') push('.   ..   .secret_room/   about.txt   projects/   skills/   lab/');
+    else if (low === 'cd .secret_room' || low === 'cd .secret_room/' || low === 'open door' || low === 'unity') { push('Abriendo .secret_room ... trae linterna.', 'dim'); after = () => this.openSecret(); }
+    else if (low === 'sudo coffee') { push('☕ ACCESS GRANTED', 'ok'); push('Developer fuel detected.', 'ok'); this.sfx('activate'); }
+    else if (low.startsWith('sudo')) push('Permission denied. Buen intento.', 'err');
+    else if (low.startsWith('open ')) { const a = low.slice(5).trim(); const n = parseInt(a, 10); const sec = { about: 'about', projects: 'projects', systems: 'systems', skills: 'systems', arch: 'arch', architecture: 'arch', lab: 'lab', contact: 'contact' }[a];
+      const p = (n >= 1 && n <= 6) ? P[n - 1] : P.find(x => x.id === a || x.name.toLowerCase() === a);
+      if (p) { push('ACCESS PROJECT ' + p.code + ' ' + p.name, 'ok'); after = () => this.openProject(p.id); } else if (sec) { push('OPEN SYSTEM ' + a.toUpperCase(), 'ok'); after = () => this.openPanel(sec); } else push('open: destino desconocido "' + a + '"', 'err'); }
+    else push('command not found: ' + c + ' · prueba "help"', 'err');
+    this.setState(s => ({ term: [...s.term, ...out].slice(-80), termIn: '' })); this.sfx('click');
+    if (after) setTimeout(after, 500);
+  }
+  openSecret() { this.setState({ secret: true, secretMsg: '' }); this.sfx('close'); }
+  closeSecret = () => this.setState({ secret: false });
+
+  renderVals() {
+    const s = this.state, D = s.data || {}, P = D.PROJECTS || [], mob = s.isMobile, is2D = s.tier === '2d';
+    const TC = { PERSONAL: '#6fe3ff', TEAM: '#a594ff', ORGANIZATION: '#ff7fc0' };
+    const badge = (c) => ({ font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.2em', padding: '4px 7px', color: c, border: '1px solid ' + c + '66', whiteSpace: 'nowrap' });
+    const chipBtn = (on, c = '#6fe3ff') => ({ minHeight: 34, padding: '0 11px', background: on ? c + '22' : 'none', border: '1px solid ' + (on ? c : 'rgba(110,160,255,.22)'), color: on ? '#e6edfb' : '#9aabc9', font: '600 10px/1 Oxanium, sans-serif', letterSpacing: '.16em', cursor: 'pointer', transition: 'all .2s' });
+    const act = s.panel === 'project' ? 'projects' : s.panel;
+    const M = [['about', 'ABOUT', '01', 'ABOUT'], ['projects', 'PROJECTS', '02', 'WORK'], ['systems', 'SYSTEMS', '03', 'SKILLS'], ['arch', 'ARCHITECTURE', '04', 'ARCH'], ['lab', 'LAB', '05', 'LAB'], ['contact', 'CONTACT', '06', 'LINK']];
+    const menu = M.map(([id, label, num, short]) => { const on = act === id; return { id, label, num, short, current: on ? 'page' : 'false', onClick: () => this.openPanel(id),
+      style: { display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 0, padding: '8px 0', cursor: 'pointer', color: on ? '#e6edfb' : '#8597ba', font: '600 11px/1 Oxanium, sans-serif', letterSpacing: '.26em', textAlign: 'left', transition: 'color .25s' },
+      bar: { display: 'block', height: 1, width: on ? 26 : 12, background: on ? '#6fe3ff' : '#33456e', transition: 'width .35s, background .35s', boxShadow: on ? '0 0 8px #6fe3ff' : 'none' },
+      dock: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 5, minHeight: 56, background: 'none', border: 0, borderTop: on ? '2px solid #6fe3ff' : '2px solid transparent', color: on ? '#e6edfb' : '#8597ba', font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.14em', cursor: 'pointer', padding: 0 } }; });
+    const cur = P.find(x => x.id === s.pid);
+    const titles = { about: ['SECTOR 03', 'ABOUT'], projects: ['SECTOR 01', 'PROJECT DATABASE'], project: [cur ? cur.code : '', cur ? cur.name : ''], systems: ['SECTOR 02', 'TECHNOLOGY CONSTELLATION'], arch: ['MODE', 'ARCHITECTURE MODE'], lab: ['SECTOR 04', 'LSM // LAB'], contact: ['SECTOR 05', 'ESTABLISH CONNECTION'] };
+    const [panelCode, panelTitle] = titles[s.panel] || ['', ''];
+    const wide = s.panel === 'systems' || s.panel === 'arch';
+    const glass = { background: 'rgba(5,9,22,.82)', backdropFilter: 'blur(16px)', border: '1px solid rgba(110,160,255,.2)', display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 20, pointerEvents: 'auto', animation: 'nxIn .45s cubic-bezier(.2,.8,.2,1) both', boxShadow: '0 30px 80px rgba(0,0,0,.5)' };
+    const panelStyle = mob ? Object.assign({}, glass, { position: 'absolute', left: 0, right: 0, bottom: 57, height: '66%', borderRadius: '14px 14px 0 0', borderBottom: 0 }) : Object.assign({}, glass, { position: 'absolute', top: 70, right: 20, bottom: 20, width: wide ? 680 : 480, maxWidth: 'calc(100vw - 240px)' });
+    // projects
+    const counts = { ALL: P.length }; P.forEach(p => counts[p.type] = (counts[p.type] || 0) + 1);
+    const filters = ['ALL', 'PERSONAL', 'TEAM', 'ORGANIZATION'].map(f => ({ label: f, count: String(counts[f] || 0).padStart(2, '0'), pressed: s.filter === f ? 'true' : 'false', onClick: () => this.setState({ filter: f }), style: chipBtn(s.filter === f, TC[f] || '#6fe3ff') }));
+    const rows = P.filter(p => s.filter === 'ALL' || p.type === s.filter).map(p => ({ ...p, num: p.code.replace('EXP.', ''), onClick: () => this.openProject(p.id), badge: badge(TC[p.type]), dot: { width: 7, height: 7, borderRadius: '50%', background: p.color, boxShadow: '0 0 10px ' + p.color, flex: 'none' } }));
+    let proj = { flowSteps: [], sections: [], stack: [], repo: {} };
+    if (cur) { const i = P.indexOf(cur), n = cur.flow.length, a = s.reduced ? n : s.flowStep % (n + 2), pv = P[(i + 5) % 6], nx = P[(i + 1) % 6];
+      proj = { ...cur, badge: badge(TC[cur.type]), methodText: cur.method || '—', hasArch: !!cur.arch,
+        nameStyle: { margin: 0, font: '600 34px/1.05 Oxanium, sans-serif', letterSpacing: '.12em', color: '#e6edfb', textShadow: '0 0 24px ' + cur.color + '55' },
+        accentLine: { height: 2, width: 120, background: 'linear-gradient(90deg,' + cur.color + ', transparent)' },
+        repoChip: { font: '600 8px/1 Oxanium, sans-serif', letterSpacing: '.18em', padding: '3px 6px', background: 'rgba(255,255,255,.06)', color: cur.repo.state === 'PRIVATE' ? '#ffb38a' : '#9aabc9' },
+        flowSteps: cur.flow.map((f, k) => ({ label: f, idx: String(k + 1).padStart(2, '0'), notLast: k < n - 1,
+          style: { font: '600 10px/1 Oxanium, sans-serif', letterSpacing: '.16em', padding: '9px 10px', border: '1px solid ' + (k === a ? cur.color : k < a ? cur.color + '66' : 'rgba(110,160,255,.2)'), background: k === a ? cur.color + '26' : 'transparent', color: k <= a ? '#e6edfb' : '#7d8fb4', boxShadow: k === a ? '0 0 18px ' + cur.color + '44' : 'none', transition: 'all .4s' },
+          arrow: { font: '600 12px/1 Oxanium, sans-serif', color: k < a ? cur.color : '#33456e', transition: 'color .4s' } })),
+        onArch: () => { this.setState({ panel: 'arch', archId: cur.arch, archSel: null }); this.overview(); this.sfx('open'); },
+        prevName: pv.name, nextName: nx.name, onPrev: () => this.openProject(pv.id), onNext: () => this.openProject(nx.id) }; }
+    // systems
+    const cats = D.SKILLS || [], cx = 280, cy = 280, cLines = [], cDots = [], cHubs = [];
+    cats.forEach((c, i) => { const a = i / cats.length * Math.PI * 2 - Math.PI / 2, ca = Math.cos(a), sa = Math.sin(a), hx = cx + ca * 160, hy = cy + sa * 160, on = i === s.cat;
+      cLines.push({ x1: cx, y1: cy, x2: hx, y2: hy, style: { stroke: on ? '#6fe3ff' : '#22355e', strokeWidth: on ? 1.4 : 1, transition: 'stroke .3s' } });
+      c.techs.forEach((t, j) => { const b = a + (j / c.techs.length) * Math.PI * 2, rr = 34 + (j % 3) * 11, x = hx + Math.cos(b) * rr, y = hy + Math.sin(b) * rr, ts = on && s.tech === t[0];
+        if (on) cLines.push({ x1: hx, y1: hy, x2: x, y2: y, style: { stroke: '#4d8dff', strokeWidth: .8, opacity: .6 } });
+        cDots.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: ts ? 6 : on ? 4 : 2.4, onClick: () => this.setState({ cat: i, tech: t[0] }), style: { fill: ts ? '#ffffff' : on ? '#6fe3ff' : '#4a5f8f', cursor: 'pointer', transition: 'all .3s' } }); });
+      const lx = cx + ca * 252, ly = cy + sa * 252 + 4;
+      cHubs.push({ name: c.name, x: +hx.toFixed(1), y: +hy.toFixed(1), lx: +lx.toFixed(1), ly: +ly.toFixed(1), r: on ? 10 : 7, selected: on ? 'true' : 'false', onClick: () => { this.setState({ cat: i, tech: null }); this.sfx('click'); },
+        style: { fill: on ? '#0b1f4a' : '#071230', stroke: on ? '#6fe3ff' : '#4d8dff', strokeWidth: on ? 2 : 1, transition: 'all .3s' },
+        tStyle: { fill: on ? '#e6edfb' : '#8597ba', font: '600 11px Oxanium, sans-serif', letterSpacing: '2px', textAnchor: ca > .3 ? 'start' : ca < -.3 ? 'end' : 'middle', transition: 'fill .3s' }, btn: chipBtn(on) }); });
+    const sc = cats[s.cat] || { name: '', techs: [] };
+    const techChips = sc.techs.map(t => ({ name: t[0], pressed: s.tech === t[0] ? 'true' : 'false', onClick: () => { this.setState({ tech: s.tech === t[0] ? null : t[0] }); this.sfx('click'); }, style: Object.assign(chipBtn(s.tech === t[0]), { font: '600 11.5px/1 Oxanium, sans-serif', letterSpacing: '.06em' }) }));
+    const tsel = sc.techs.find(t => t[0] === s.tech);
+    const techProjects = tsel ? tsel[1].split(' ').map(id => P.find(p => p.id === id)).filter(Boolean).map(p => ({ code: p.code, name: p.name, onClick: () => this.openProject(p.id) })) : [];
+    // architecture
+    const AR = D.ARCH || [], arch = AR.find(a => a.id === s.archId) || AR[0] || { notes: {} };
+    const archTabs = AR.map(a => ({ tab: a.tab, selected: a.id === arch.id ? 'true' : 'false', onClick: () => { this.setState({ archId: a.id, archSel: null }); this.sfx('click'); }, style: chipBtn(a.id === arch.id) }));
+    const selBox = (k, extra) => Object.assign({ background: s.archSel === k ? 'rgba(77,141,255,.16)' : 'rgba(77,141,255,.04)', border: '1px solid ' + (s.archSel === k ? '#6fe3ff' : 'rgba(110,160,255,.25)'), color: '#e6edfb', cursor: 'pointer', textAlign: 'left', transition: 'all .25s', boxShadow: s.archSel === k ? '0 0 22px rgba(111,227,255,.18)' : 'none' }, extra);
+    const archLayers = (arch.layers || []).map((L, k) => ({ ...L, idx: String(k + 1).padStart(2, '0'), notLast: k < arch.layers.length - 1, onClick: () => this.setState({ archSel: 'L' + k }),
+      style: selBox('L' + k, { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 14, alignItems: 'center', padding: '14px 16px', marginLeft: (k % 2) * 10, marginRight: ((k + 1) % 2) * 10 }),
+      link: { width: 1, height: 16, alignSelf: 'center', background: s.archSel === 'L' + k || s.archSel === 'L' + (k + 1) ? '#6fe3ff' : '#2a3c66' } }));
+    const hpart = (k, extra) => ({ onClick: () => this.setState({ archSel: k }), style: selBox(k, Object.assign({ padding: 12, display: 'flex', flexDirection: 'column', gap: 6 }, extra)) });
+    const hx = { clients: hpart('clients', { alignItems: 'center' }), inbound: hpart('inbound'), core: hpart('core', { alignItems: 'center', textAlign: 'center', padding: 16, borderRadius: 999, borderColor: s.archSel === 'core' ? '#6fe3ff' : '#4d8dff' }), outbound: hpart('outbound'), deploy: hpart('deploy', { alignItems: 'center' }) };
+    const archModules = (arch.modules || []).map((m, k) => ({ ...m, onClick: () => this.setState({ archSel: 'M' + k }), style: selBox('M' + k, { padding: 12, display: 'flex', flexDirection: 'column', gap: 8, borderStyle: m.mine ? 'solid' : 'dashed', opacity: m.mine ? 1 : .7 }), tagStyle: { font: '600 8px/1 Oxanium, sans-serif', letterSpacing: '.16em', padding: '3px 5px', color: m.mine ? '#02040b' : '#9aabc9', background: m.mine ? '#6fe3ff' : 'transparent', border: m.mine ? 0 : '1px solid #33456e', whiteSpace: 'nowrap' } }));
+    let archNote = arch.summary || '';
+    if (s.archSel) { if (s.archSel[0] === 'L' && arch.layers) archNote = (arch.layers[+s.archSel.slice(1)] || {}).note || archNote; else if (s.archSel[0] === 'M' && arch.modules) archNote = (arch.modules[+s.archSel.slice(1)] || {}).note || archNote; else if (arch.notes) archNote = arch.notes[s.archSel] || archNote; }
+    if (!s.archSel) archNote = archNote + ' — Haz clic en una capa para inspeccionarla.';
+    // lab
+    const TCOL = { in: '#e6edfb', out: '#a9b8d6', dim: '#6f82a8', ok: '#5ff0b0', err: '#ff8fb5', sys: '#6fe3ff' };
+    const termLines = s.term.map(l => ({ s: l.s, style: { font: '500 12.5px/1.5 ui-monospace, Menlo, monospace', color: TCOL[l.t] || '#a9b8d6', whiteSpace: 'pre-wrap', wordBreak: 'break-word' } }));
+    const quickCmds = ['help', 'projects', 'skills', 'stats', 'github', 'contact'].map(c => ({ c, onClick: () => this.runCmd(c) }));
+    const techCount = String(new Set(cats.flatMap(k => k.techs.map(t => t[0]))).size);
+    // contact
+    const email = this.props.emailAddress, li = this.props.linkedinUrl, cv = this.props.resumeUrl;
+    const stat = (live) => ({ font: '600 8px/1 Oxanium, sans-serif', letterSpacing: '.18em', padding: '4px 6px', color: live ? '#5ff0b0' : '#ffb38a', border: '1px solid ' + (live ? '#5ff0b055' : '#ffb38a55'), whiteSpace: 'nowrap' });
+    const contacts = [
+      { label: 'GITHUB', value: 'github.com/Sofira28', href: 'https://github.com/Sofira28', live: true },
+      { label: 'EMAIL', value: email || '[ PLACEHOLDER · email ]', href: email ? 'mailto:' + email : '', live: !!email },
+      { label: 'LINKEDIN', value: li ? li.replace(/^https?:\/\/(www\.)?/, '') : '[ PLACEHOLDER · LinkedIn ]', href: li || '', live: !!li },
+      { label: 'CV / RESUME', value: cv ? 'Descargar PDF' : '[ PLACEHOLDER · archivo CV ]', href: cv || '', live: !!cv }
+    ].map(c => ({ ...c, pending: !c.live, status: c.live ? 'ONLINE' : 'PENDING', statusStyle: stat(c.live) }));
+    // 2D
+    const nodes2D = P.map((p, i) => { const a = i / 6 * Math.PI * 2 - Math.PI / 2; return { code: p.code, name: p.name, onClick: () => this.openProject(p.id), style: { position: 'absolute', left: (50 + Math.cos(a) * 38) + '%', top: (50 + Math.sin(a) * 38) + '%', transform: 'translate(-50%,-50%)', minWidth: 120, minHeight: 52, padding: '8px 12px', background: 'rgba(5,10,26,.85)', border: '1px solid ' + (s.pid === p.id && s.panel === 'project' ? p.color : p.color + '66'), color: '#e6edfb', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, cursor: 'pointer', boxShadow: '0 0 24px ' + p.color + '22' } }; });
+    const labels = P.map(p => ({ id: p.id, code: p.code, name: p.name, aria: 'Abrir ' + p.name, onClick: () => this.openProject(p.id) })).concat([
+      { id: 's-about', code: 'SECTOR 03', name: 'LSM · AVATAR', aria: 'Abrir About', onClick: () => this.openPanel('about') },
+      { id: 's-systems', code: 'SECTOR 02', name: 'SKILLS / SYSTEMS', aria: 'Abrir Skills', onClick: () => this.openPanel('systems') },
+      { id: 's-lab', code: 'SECTOR 04', name: 'LSM // LAB', aria: 'Abrir Lab', onClick: () => this.openPanel('lab') },
+      { id: 's-contact', code: 'SECTOR 05', name: 'CONTACT', aria: 'Abrir Contact', onClick: () => this.openPanel('contact') }]);
+    const modeBtn = (on) => ({ minHeight: 34, padding: '0 12px', background: on ? 'rgba(77,141,255,.22)' : 'none', border: 0, color: on ? '#e6edfb' : '#7d8fb4', font: '600 10px/1 Oxanium, sans-serif', letterSpacing: '.2em', cursor: 'pointer' });
+    return {
+      canvasHost: this.canvasHost, labelLayer: this.labelLayer, fpsRef: this.fpsRef, termBox: this.termBox, termInputRef: this.termInputRef, flashRef: this.flashRef, knobRef: this.knobRef, panelBody: this.panelBody,
+      canvasStyle: { position: 'absolute', inset: 0, display: is2D ? 'none' : 'block' },
+      labelLayerStyle: { position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', display: s.arrived && !is2D ? 'block' : 'none' },
+      show2D: is2D && s.arrived, nodes2D, labels,
+      arrived: s.arrived, isMobile: mob, isDesktop: !mob, menu,
+      modeLabel: s.mode === 'system' ? 'SYSTEM' : 'EXPLORATION', isExplore: s.mode === 'exploration' ? 'true' : 'false', isSystem: s.mode === 'system' ? 'true' : 'false',
+      modeBtnA: modeBtn(s.mode === 'exploration'), modeBtnB: modeBtn(s.mode === 'system'),
+      setExplore: () => this.setMode('exploration'), setSystem: () => this.setMode('system'), toggleMode: () => this.setMode(s.mode === 'system' ? 'exploration' : 'system'),
+      controlsHint: is2D ? 'PERFORMANCE MODE · usa el menú o toca un nodo del mapa' : s.mode === 'system' ? 'SYSTEM MODE · navegación por menú · teclas 1–6 · M para cambiar' : 'WASD mover · Q/E altura · arrastra para mirar · rueda zoom · clic en un mundo · 1–6 secciones',
+      soundLabel: s.sound ? 'SOUND: ON' : 'SOUND: OFF', soundPressed: s.sound ? 'true' : 'false', toggleSound: this.toggleSound,
+      motionLabel: s.reduced ? 'MOTION: REDUCED' : 'MOTION: FULL', motionPressed: s.reduced ? 'true' : 'false', toggleMotion: () => this.setState({ reduced: !s.reduced }),
+      tierLabel: { high: '3D HIGH', lite: '3D LITE', '2d': '2D' }[s.tier], cycleTier: () => this.setTier({ high: 'lite', lite: '2d', '2d': 'high' }[s.tier]),
+      showFps: !!this.props.showFps && !is2D, settingsOpen: s.settings && mob, toggleSettings: () => this.setState({ settings: !s.settings }),
+      showIntro: s.arrived && !s.panel && !s.secret,
+      introStyle: mob ? { position: 'absolute', left: 12, right: 12, top: 76, padding: 16, display: 'flex', flexDirection: 'column', gap: 10, background: 'rgba(5,9,22,.78)', border: '1px solid rgba(110,160,255,.2)', backdropFilter: 'blur(12px)', pointerEvents: 'auto', animation: 'nxIn .9s .2s cubic-bezier(.2,.8,.2,1) both' } : { position: 'absolute', right: 28, bottom: 28, width: 380, padding: 22, display: 'flex', flexDirection: 'column', gap: 12, background: 'rgba(5,9,22,.7)', border: '1px solid rgba(110,160,255,.2)', backdropFilter: 'blur(14px)', pointerEvents: 'auto', animation: 'nxIn .9s .3s cubic-bezier(.2,.8,.2,1) both' },
+      openProjects: () => this.openPanel('projects'), openAbout: () => this.openPanel('about'), openZytime: () => this.openProject('zytime'), openSimav: () => this.openProject('simav'), openResume: this.openResume, goHome: this.goHome,
+      showJoy: mob && s.mode === 'exploration' && !s.panel && s.arrived && !is2D,
+      joyDown: (e) => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this.joyRect = e.currentTarget.getBoundingClientRect(); this.joyMoveFn(e); },
+      joyMove: (e) => this.joyMoveFn(e), joyUp: () => { this.joyRect = null; this.joy = { x: 0, y: 0 }; if (this.knobRef.current) this.knobRef.current.style.transform = 'translate(0,0)'; },
+      panelOpen: !!s.panel, panelStyle, panelCode, panelTitle, closePanel: this.closePanel,
+      pAbout: s.panel === 'about', pProjects: s.panel === 'projects', pProject: s.panel === 'project' && !!cur, pSystems: s.panel === 'systems', pArch: s.panel === 'arch', pLab: s.panel === 'lab', pContact: s.panel === 'contact',
+      areas: (D.PROFILE || {}).areas || [], filters, rows, proj,
+      cLines, cDots, cHubs, catName: sc.name, catCount: String(sc.techs.length).padStart(2, '0'), techChips, hasTech: !!tsel, techName: tsel ? tsel[0] : '', techProjects,
+      archTabs, arch, archIsStack: arch.kind === 'stack', archIsHex: arch.kind === 'hex', archIsModular: arch.kind === 'modular', archLayers, hx, archModules, archNote,
+      termLines, termIn: s.termIn, onTermChange: (e) => this.setState({ termIn: e.target.value }), onTermKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.runCmd(s.termIn); } }, focusTerm: () => { if (this.termInputRef.current) this.termInputRef.current.focus({ preventScroll: true }); }, quickCmds, techCount,
+      contacts,
+      showBoot: s.phase === 'boot', bootDone: s.bootDone, bootTyping: !s.bootDone,
+      bootLines: s.bootLines.map(b => ({ s: b.s, style: { color: b.t === 'ok' ? '#5ff0b0' : b.t === 'dim' ? '#6f82a8' : '#a9c4ff', letterSpacing: '.06em', animation: 'nxFade .3s ease both' } })),
+      bootStyle: { position: 'absolute', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'radial-gradient(ellipse at center, rgba(3,6,16,.55) 0%, rgba(2,4,11,.9) 70%)', transition: 'opacity .75s ease, transform .9s cubic-bezier(.6,0,.2,1), filter .75s', opacity: s.bootExit ? 0 : 1, transform: s.bootExit ? 'scale(1.12)' : 'none', filter: s.bootExit ? 'blur(12px)' : 'none', pointerEvents: s.bootExit ? 'none' : 'auto' },
+      enterNexus: () => this.enter(false), enterQuick: () => this.enter(true),
+      secret: s.secret, secretMsg: s.secretMsg, hasSecretMsg: !!s.secretMsg, closeSecret: this.closeSecret,
+      onSecretMove: (e) => { const el = this.flashRef.current; if (el) { el.style.setProperty('--fx', e.clientX + 'px'); el.style.setProperty('--fy', e.clientY + 'px'); } },
+      knockDoor: () => { this.setState({ secretMsg: 'La puerta no abre… todavía. Esta habitación es un guiño a un prototipo de horror 3D que construí en Unity.' }); this.sfx('close'); },
+      readNote: () => this.setState({ secretMsg: 'NOTA — UNITY // 3D HORROR. Un experimento personal: habitación oscura, linterna, puerta, nota. Lo hice para explorar ambientación e interacción en tiempo real. [ Detalles técnicos y capturas por agregar ]' }),
+      hasToast: !!s.toast, toast: s.toast
+    };
+  }
+  joyMoveFn(e) { if (!this.joyRect) return; const r = this.joyRect; let x = (e.clientX - (r.left + r.width / 2)) / (r.width / 2), y = (e.clientY - (r.top + r.height / 2)) / (r.height / 2); const l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; } this.joy = { x, y }; if (this.knobRef.current) this.knobRef.current.style.transform = 'translate(' + (x * 32) + 'px,' + (y * 32) + 'px)'; }
+}
+</script>
+</body>
+</html>

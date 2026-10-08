@@ -1,0 +1,130 @@
+/* LSM // NEXUS — design tokens + átomos compartidos */
+:root {
+  --bg: #02040b;
+  --panel: rgba(5, 9, 22, .82);
+  --cell: #060b1d;
+  --text: #e6edfb;
+  --text-2: #c7d3ea;
+  --text-3: #b3c0da;
+  --text-4: #9aabc9;
+  --dim: #8597ba;
+  --dim-2: #6f82a8;
+  --line: #33456e;
+  --line-2: #22355e;
+  --blue: #4d8dff;
+  --cyan: #6fe3ff;
+  --violet: #a594ff;
+  --magenta: #ff7fc0;
+  --ok: #5ff0b0;
+  --warn: #ffb38a;
+  --border: rgba(110, 160, 255, .2);
+  --ox: Oxanium, sans-serif;
+  --mr: Manrope, sans-serif;
+  --mono: ui-monospace, Menlo, Consolas, monospace;
+}
+
+html, body, #root { margin: 0; height: 100%; background: var(--bg); color: var(--text); overflow: hidden; }
+body { font-family: var(--mr); -webkit-font-smoothing: antialiased; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { color: var(--text); }
+button, input { font-family: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+::selection { background: var(--blue); color: #fff; }
+*::-webkit-scrollbar { width: 6px; }
+*::-webkit-scrollbar-thumb { background: #1d2c52; }
+
+@keyframes nxIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes nxFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nxBlink { 50% { opacity: 0; } }
+@keyframes nxPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes nxLine { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.nx-reduced *, .nx-reduced *::before, .nx-reduced *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+.nx-root { position: fixed; inset: 0; background: var(--bg); color: var(--text); font-family: var(--mr); overflow: hidden; }
+.nx-fill { position: absolute; inset: 0; }
+.nx-scanlines { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px); mix-blend-mode: screen; }
+.nx-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+
+/* ---------- tipografía ---------- */
+.kicker { font: 600 9px/1 var(--ox); letter-spacing: .28em; color: var(--cyan); }
+.kicker.mb { margin-bottom: 10px; }
+.label-ox { font: 600 10px/1 var(--ox); letter-spacing: .2em; }
+
+/* ---------- botones ---------- */
+.btn-primary {
+  min-height: 44px; padding: 0 16px; background: var(--blue); border: 0; color: var(--bg);
+  font: 700 11px/1 var(--ox); letter-spacing: .2em; cursor: pointer; transition: background .2s;
+}
+.btn-primary:hover { background: var(--cyan); }
+.btn-outline {
+  min-height: 44px; padding: 0 14px; background: none; border: 1px solid rgba(110,160,255,.35); color: var(--text);
+  font: 600 11px/1 var(--ox); letter-spacing: .2em; cursor: pointer; transition: border-color .2s, color .2s;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.btn-outline:hover { border-color: var(--cyan); color: var(--text); }
+.btn-tool {
+  height: 32px; padding: 0 10px; background: none; border: 1px solid rgba(110,160,255,.18); color: var(--text-4);
+  font: 600 10px/1 var(--ox); letter-spacing: .18em; cursor: pointer; transition: color .2s, border-color .2s;
+}
+.btn-tool:hover { color: var(--text); border-color: rgba(110,160,255,.4); }
+.btn-resume {
+  height: 32px; padding: 0 12px; background: rgba(77,141,255,.14); border: 1px solid rgba(77,141,255,.55); color: var(--text);
+  font: 600 10px/1 var(--ox); letter-spacing: .2em; cursor: pointer; transition: background .2s;
+}
+.btn-resume:hover { background: rgba(77,141,255,.28); }
+.btn-link {
+  height: 32px; padding: 0 12px; display: flex; align-items: center; border: 1px solid rgba(110,160,255,.25); color: var(--text);
+  font: 600 10px/1 var(--ox); letter-spacing: .2em; transition: border-color .2s;
+}
+.btn-link:hover { border-color: var(--cyan); color: var(--text); }
+.btn-sheet {
+  height: 44px; padding: 0 14px; background: none; border: 1px solid rgba(110,160,255,.18); color: var(--text);
+  font: 600 10px/1 var(--ox); letter-spacing: .18em; text-align: left; cursor: pointer;
+}
+.btn-nav {
+  min-height: 44px; padding: 0 12px; background: none; border: 1px solid rgba(110,160,255,.2); color: var(--text-4);
+  font: 600 10px/1 var(--ox); letter-spacing: .18em; cursor: pointer; transition: color .2s;
+}
+.btn-nav:hover { color: var(--text); }
+.btn-nav.bare { border: 0; color: var(--dim-2); }
+.btn-small {
+  min-height: 36px; padding: 0 12px; background: none; border: 1px solid rgba(110,160,255,.3); color: var(--text);
+  font: 600 10px/1 var(--ox); letter-spacing: .18em; cursor: pointer; transition: border-color .2s;
+}
+.btn-small:hover { border-color: var(--cyan); }
+.btn-cmd {
+  min-height: 36px; padding: 0 12px; background: none; border: 1px solid rgba(110,160,255,.22); color: var(--text-3);
+  font: 500 12px/1 var(--mono); cursor: pointer; transition: border-color .2s, color .2s;
+}
+.btn-cmd:hover { border-color: var(--cyan); color: var(--text); }
+
+/* ---------- celdas / grids ---------- */
+.grid-cells { display: grid; gap: 1px; background: rgba(110,160,255,.16); border: 1px solid rgba(110,160,255,.16); }
+.grid-cells > * { background: var(--cell); }
+.tag { font: 600 9px/1 var(--ox); letter-spacing: .18em; padding: 6px 8px; border: 1px solid rgba(110,160,255,.25); color: var(--text-4); }
+.chip-item { font: 500 12.5px/1.3 var(--mr); padding: 6px 10px; background: rgba(77,141,255,.07); border: 1px solid rgba(110,160,255,.18); color: #d3dcef; }
+
+/* ---------- filas de proyectos ---------- */
+.proj-row {
+  display: grid; grid-template-columns: 62px minmax(0,1fr) auto; gap: 14px; align-items: center; padding: 14px 4px;
+  background: none; border: 0; border-bottom: 1px solid rgba(110,160,255,.16); color: var(--text); text-align: left;
+  cursor: pointer; transition: background .2s, padding .25s; width: 100%;
+}
+.proj-row:hover { background: rgba(77,141,255,.08); padding-left: 10px; }
+
+/* ---------- labels de mundo ---------- */
+.world-label {
+  position: absolute; left: 0; top: 0; transform: translate3d(-9999px,0,0); pointer-events: auto;
+  background: rgba(4,8,20,.6); border: 1px solid rgba(110,160,255,.28); color: var(--text);
+  padding: 6px 10px 7px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  cursor: pointer; white-space: nowrap; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  transition: border-color .3s, opacity .3s;
+}
+
+/* ---------- terminal ---------- */
+.term-input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--text); font: 500 13px/1.4 var(--mono); height: 32px; }
+.term-input:focus-visible { outline: none; }
