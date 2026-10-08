@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { SKILLS } from '../../data/projectsData.js';
+import { SKILL_META as SKILLS } from '../../data/index.js';
 import { SECTORS } from '../../utils/nexus.js';
 import { HitTarget, animTime } from '../helpers.jsx';
 

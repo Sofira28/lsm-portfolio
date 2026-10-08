@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useNexus } from '../store.js';
-import { PROJECTS } from '../data/projectsData.js';
+import { PROJECT_META as PROJECTS } from '../data/index.js';
 import { nexus } from '../utils/nexus.js';
 import { isAutoPerf } from '../hooks/usePerfTier.js';
 import { useCameraRig } from '../hooks/useCameraRig.js';
@@ -207,8 +207,8 @@ function RenderLoop() {
 
   const downgrade = () => {
     const S = useNexus.getState();
-    if (S.tier === 'high') { S.setTier('lite'); S.showToast('RENDIMIENTO BAJO · PERFIL 3D LITE ACTIVADO'); }
-    else { S.setTier('2d'); S.showToast('PERFORMANCE MODE · VISTA 2D ACTIVADA'); }
+    if (S.tier === 'high') { S.setTier('lite'); S.showToast('toast.lite'); }
+    else { S.setTier('2d'); S.showToast('toast.2d'); }
   };
 
   useFrame(({ gl, scene, camera }, delta) => {

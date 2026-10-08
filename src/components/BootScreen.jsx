@@ -1,5 +1,8 @@
 import { useNexus } from '../store.js';
-import { TIER_LABEL, TIER_NEXT } from '../hooks/usePerfTier.js';
+import { TIER_NEXT } from '../hooks/usePerfTier.js';
+import { useT, toggleLang } from '../i18n/index.js';
+import { useContent } from '../data/index.js';
+import { pad2 } from '../utils/styles.js';
 
 const LINE_COLOR = { ok: '#5ff0b0', dim: '#6f82a8', in: '#a9c4ff' };
 
@@ -10,11 +13,14 @@ export default function BootScreen() {
   const sound = useNexus((s) => s.sound);
   const tier = useNexus((s) => s.tier);
   const { enter, toggleSound, setTier } = useNexus.getState();
+  const t = useT();
+  const { PROFILE, PROJECTS } = useContent();
+  const lineText = (b) => t(b.k, { n: pad2(PROJECTS.length) }) + (b.tier ? t('tier.long.' + b.tier) : '');
 
   return (
     <div
       role="dialog"
-      aria-label="Inicio del sistema"
+      aria-label={t('boot.aria')}
       style={{
         position: 'absolute', inset: 0, zIndex: 50, display: 'flex', overflowY: 'auto', padding: 24,
         background: 'radial-gradient(ellipse at center, rgba(3,6,16,.55) 0%, rgba(2,4,11,.9) 70%)',
@@ -26,7 +32,7 @@ export default function BootScreen() {
       <div style={{ width: 'min(560px,100%)', margin: 'auto', display: 'flex', flexDirection: 'column', gap: 'clamp(16px,4vh,28px)' }}>
         <div aria-live="polite" style={{ display: 'flex', flexDirection: 'column', gap: 6, minHeight: 'min(190px,30vh)', font: '500 13px/1.5 ui-monospace, Menlo, Consolas, monospace' }}>
           {bootLines.map((b, i) => (
-            <div key={i} style={{ color: LINE_COLOR[b.t], letterSpacing: '.06em', animation: 'nxFade .3s ease both' }}>{b.s}</div>
+            <div key={i} style={{ color: LINE_COLOR[b.t], letterSpacing: '.06em', animation: 'nxFade .3s ease both' }}>{lineText(b)}</div>
           ))}
           {!bootDone && <span style={{ display: 'inline-block', width: 8, height: 15, background: '#6fe3ff', animation: 'nxBlink 1s steps(1) infinite' }} />}
         </div>
@@ -37,12 +43,13 @@ export default function BootScreen() {
               <span style={{ font: '700 clamp(56px,12vw,104px)/0.9 Oxanium, sans-serif', letterSpacing: '.14em', color: '#e6edfb' }}>LSM</span>
               <span style={{ flex: 1, height: 1, background: 'linear-gradient(90deg,#4d8dff,transparent)', transformOrigin: 'left', animation: 'nxLine 1.2s .3s cubic-bezier(.2,.8,.2,1) both' }} />
             </div>
-            <div style={{ font: '600 clamp(12px,2.4vw,15px)/1.4 Oxanium, sans-serif', letterSpacing: '.42em', color: '#e6edfb' }}>
-              L I N D A &nbsp; S O F I A &nbsp; M O R E N O
+            <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: '1.4em', rowGap: 4, font: '600 clamp(12px,2.4vw,15px)/1.4 Oxanium, sans-serif', letterSpacing: '.42em', color: '#e6edfb' }}>
+              {/* cada palabra sin cortes; en pantallas estrechas pasa entera a la siguiente línea */}
+              {PROFILE.name.split(' ').map((w) => <span key={w} style={{ whiteSpace: 'nowrap' }}>{w.split('').join(' ')}</span>)}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8, font: '600 11px/1 Oxanium, sans-serif', letterSpacing: '.32em' }}>
-              <span style={{ color: '#4d8dff' }}>SYSTEMS ENGINEER</span>
-              <span style={{ color: '#6f82a8' }}>BUILD SYSTEMS. CREATE WORLDS.</span>
+              <span style={{ color: '#4d8dff' }}>{PROFILE.role}</span>
+              <span style={{ color: '#6f82a8' }}>{PROFILE.tagline}</span>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
               <button
@@ -50,20 +57,21 @@ export default function BootScreen() {
                 onClick={() => enter(false)}
                 style={{ minHeight: 52, padding: '0 26px', font: '700 13px/1 Oxanium, sans-serif', letterSpacing: '.3em', boxShadow: '0 0 30px rgba(77,141,255,.35)' }}
               >
-                [ ENTER NEXUS ]
+                {t('boot.enter')}
               </button>
               <button
                 className="btn-outline"
                 onClick={() => enter(true)}
                 style={{ minHeight: 52, padding: '0 18px', color: '#c7d3ea' }}
               >
-                QUICK ACCESS → PROJECTS
+                {t('boot.quick')}
               </button>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, font: '500 11px/1.5 Manrope, sans-serif', color: '#6f82a8' }}>
-              <span>Enter ↵ para iniciar</span>
-              <button onClick={toggleSound} style={linkBtn}>{sound ? 'SOUND: ON' : 'SOUND: OFF'}</button>
-              <button onClick={() => setTier(TIER_NEXT[tier])} style={linkBtn}>RENDER: {TIER_LABEL[tier]}</button>
+              <span>{t('boot.hint')}</span>
+              <button onClick={toggleSound} style={linkBtn}>{t(sound ? 'set.soundOn' : 'set.soundOff')}</button>
+              <button onClick={() => setTier(TIER_NEXT[tier])} style={linkBtn}>{t('set.render', { tier: t('tier.' + tier) })}</button>
+              <button onClick={toggleLang} aria-label={t('lang.aria')} style={{ ...linkBtn, color: '#6fe3ff' }}>{t('lang.switch')}</button>
             </div>
           </div>
         )}

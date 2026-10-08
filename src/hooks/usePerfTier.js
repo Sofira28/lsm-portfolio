@@ -1,7 +1,6 @@
 // Selección de perfil de render: heurística de hardware + probe GPU mínimo (sin escena 3D durante el boot).
 import { CONFIG } from '../config.js';
 
-export const TIER_LABEL = { high: '3D HIGH', lite: '3D LITE', '2d': '2D' };
 export const TIER_NEXT = { high: 'lite', lite: '2d', '2d': 'high' };
 export const isAutoPerf = () => (CONFIG.perfMode || 'auto') === 'auto';
 

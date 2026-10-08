@@ -1,12 +1,14 @@
 import { useNexus } from '../../store.js';
 import { MENU, activeMenu } from '../../utils/menu.js';
+import { useT } from '../../i18n/index.js';
 
 export default function MenuRail() {
   const act = useNexus((s) => activeMenu(s.panel));
   const openPanel = useNexus.getState().openPanel;
+  const t = useT();
   return (
-    <nav aria-label="Menú NEXUS" style={{ position: 'absolute', left: 22, top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: 2, pointerEvents: 'auto' }}>
-      <div style={{ font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.28em', color: '#4d8dff', marginBottom: 10 }}>SYSTEM MENU</div>
+    <nav aria-label={t('menu.aria')} style={{ position: 'absolute', left: 22, top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: 2, pointerEvents: 'auto' }}>
+      <div style={{ font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.28em', color: '#4d8dff', marginBottom: 10 }}>{t('menu.title')}</div>
       {MENU.map((m) => {
         const on = act === m.id;
         return (
@@ -18,7 +20,7 @@ export default function MenuRail() {
           >
             <span style={{ display: 'block', height: 1, width: on ? 26 : 12, background: on ? '#6fe3ff' : '#33456e', transition: 'width .35s, background .35s', boxShadow: on ? '0 0 8px #6fe3ff' : 'none' }} />
             <span style={{ color: '#4d6290', fontSize: 9 }}>{m.num}</span>
-            <span>{m.label}</span>
+            <span>{t('menu.' + m.id)}</span>
           </button>
         );
       })}

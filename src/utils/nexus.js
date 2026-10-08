@@ -6,7 +6,7 @@ class Vector3 {
   copy(v) { this.x = v.x; this.y = v.y; this.z = v.z; return this; }
   lerp(v, a) { this.x += (v.x - this.x) * a; this.y += (v.y - this.y) * a; this.z += (v.z - this.z) * a; return this; }
 }
-import { PROJECTS } from '../data/projectsData.js';
+import { PROJECT_META as PROJECTS } from '../data/index.js';
 
 export const WORLD_RADIUS = 19;
 export const WORLD_Y = [1.2, 3.4, 0.4, 2.4, 2.6, 1.0];

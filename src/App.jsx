@@ -2,6 +2,7 @@ import { Component, Suspense, lazy, useEffect } from 'react';
 import { useNexus, setProbePromise } from './store.js';
 import { CONFIG } from './config.js';
 import { detectTier, probeTier } from './hooks/usePerfTier.js';
+import { syncDocument } from './i18n/index.js';
 import { useKeyboard } from './hooks/useKeyboard.js';
 import { runBoot } from './animations/boot.js';
 import { snapRig } from './animations/flyTo.js';
@@ -31,7 +32,7 @@ class GLBoundary extends Component {
     console.warn('[nexus] 3D init failed: ' + (e?.message || e));
     const S = useNexus.getState();
     S.setTier('2d');
-    S.showToast('MOTOR 3D NO DISPONIBLE · PERFORMANCE MODE');
+    S.showToast('toast.no3d');
     if (!S.arrived) { snapRig(); S.arrive(false); }
   }
   render() { return this.state.failed ? null : this.props.children; }
@@ -50,6 +51,7 @@ export default function App() {
   useKeyboard();
 
   useEffect(() => {
+    syncDocument();
     const reducedPref = !!CONFIG.forceReducedMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
     const t = detectTier();
     useNexus.setState({ reduced: reducedPref, tier: t });

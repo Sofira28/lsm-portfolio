@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNexus } from '../../store.js';
-import { PROJECTS } from '../../data/projectsData.js';
+import { PROJECT_META as PROJECTS } from '../../data/index.js';
+import { useT } from '../../i18n/index.js';
 import { panelWidth } from '../../utils/menu.js';
 import About from '../../sections/About.jsx';
 import ProjectsDB from '../../sections/ProjectsDB.jsx';
@@ -11,14 +12,14 @@ import Architecture from '../../sections/Architecture.jsx';
 import Lab from '../../sections/Lab.jsx';
 import Contact from '../../sections/Contact.jsx';
 
-
+// [código, clave i18n del título]
 const TITLES = {
-  about: ['SECTOR 03', 'ABOUT'],
-  projects: ['SECTOR 01', 'PROJECT DATABASE'],
-  systems: ['SECTOR 02', 'TECHNOLOGY CONSTELLATION'],
-  arch: ['MODE', 'ARCHITECTURE MODE'],
-  lab: ['SECTOR 04', 'LSM // LAB'],
-  contact: ['SECTOR 05', 'ESTABLISH CONNECTION']
+  about: ['SECTOR 03', 'panel.about'],
+  projects: ['SECTOR 01', 'panel.projects'],
+  systems: ['SECTOR 02', 'panel.systems'],
+  arch: ['panel.archCode', 'panel.arch'],
+  lab: ['SECTOR 04', 'panel.lab'],
+  contact: ['SECTOR 05', 'panel.contact']
 };
 
 const BODY = { about: About, projects: ProjectsDB, project: ProjectDetail, systems: Systems, arch: Architecture, lab: Lab, contact: Contact };
@@ -30,12 +31,13 @@ export default function Panel() {
   const reduced = useNexus((s) => s.reduced);
   const closePanel = useNexus.getState().closePanel;
   const bodyRef = useRef(null);
+  const t = useT();
 
   useEffect(() => { if (bodyRef.current) bodyRef.current.scrollTop = 0; }, [panel, pid]);
 
   if (!panel) return null;
   const cur = PROJECTS.find((x) => x.id === pid);
-  const [code, title] = panel === 'project' ? [cur?.code || '', cur?.name || ''] : TITLES[panel] || ['', ''];
+  const [code, title] = panel === 'project' ? [cur?.code || '', cur?.name || ''] : (TITLES[panel] || ['', '']).map((k) => (k.includes('.') ? t(k) : k));
   const Body = BODY[panel];
   if (panel === 'project' && !cur) return null;
 
@@ -62,7 +64,7 @@ export default function Panel() {
           <span style={{ color: '#33456e' }}>/</span>
           <span style={{ color: '#9aabc9', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</span>
         </div>
-        <button className="btn-tool" onClick={closePanel} aria-label="Cerrar panel" style={{ minWidth: 44, borderColor: 'rgba(110,160,255,.22)' }}>ESC ✕</button>
+        <button className="btn-tool" onClick={closePanel} aria-label={t('panel.close')} style={{ minWidth: 44, borderColor: 'rgba(110,160,255,.22)' }}>ESC ✕</button>
       </div>
       <div key={panel + '|' + pid} style={{ height: 1, background: 'linear-gradient(90deg,#4d8dff,transparent)', transformOrigin: 'left', animation: 'nxLine .8s cubic-bezier(.2,.8,.2,1) both', flex: 'none' }} />
       <div ref={bodyRef} style={{ flex: 1, overflowY: 'auto', padding: '22px 22px 32px' }}>

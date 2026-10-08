@@ -1,10 +1,11 @@
+// Secciones del menú; los textos salen de i18n ('menu.<id>' y 'dock.<id>' para la versión corta del dock móvil).
 export const MENU = [
-  { id: 'about', label: 'ABOUT', num: '01', short: 'ABOUT' },
-  { id: 'projects', label: 'PROJECTS', num: '02', short: 'WORK' },
-  { id: 'systems', label: 'SYSTEMS', num: '03', short: 'SKILLS' },
-  { id: 'arch', label: 'ARCHITECTURE', num: '04', short: 'ARCH' },
-  { id: 'lab', label: 'LAB', num: '05', short: 'LAB' },
-  { id: 'contact', label: 'CONTACT', num: '06', short: 'LINK' }
+  { id: 'about', num: '01' },
+  { id: 'projects', num: '02' },
+  { id: 'systems', num: '03' },
+  { id: 'arch', num: '04' },
+  { id: 'lab', num: '05' },
+  { id: 'contact', num: '06' }
 ];
 export const panelWidth = (panel) => (panel === 'systems' || panel === 'arch' ? 680 : 480);
 export const activeMenu = (panel) => (panel === 'project' ? 'projects' : panel);

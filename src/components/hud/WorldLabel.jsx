@@ -1,21 +1,26 @@
 import { useNexus } from '../../store.js';
-import { PROJECTS } from '../../data/projectsData.js';
+import { PROJECT_META } from '../../data/index.js';
+import { useT } from '../../i18n/index.js';
 import { nexus } from '../../utils/nexus.js';
 
-const LABELS = PROJECTS.map((p) => ({ id: p.id, code: p.code, name: p.name, aria: 'Abrir ' + p.name })).concat([
-  { id: 's-about', code: 'SECTOR 03', name: 'LSM · AVATAR', aria: 'Abrir About' },
-  { id: 's-systems', code: 'SECTOR 02', name: 'SKILLS / SYSTEMS', aria: 'Abrir Skills' },
-  { id: 's-lab', code: 'SECTOR 04', name: 'LSM // LAB', aria: 'Abrir Lab' },
-  { id: 's-contact', code: 'SECTOR 05', name: 'CONTACT', aria: 'Abrir Contact' }
-]);
+// [id, código, clave i18n del nombre]
+const SECTORS = [
+  ['s-about', 'SECTOR 03', 'label.about'],
+  ['s-systems', 'SECTOR 02', 'label.systems'],
+  ['s-lab', 'SECTOR 04', 'label.lab'],
+  ['s-contact', 'SECTOR 05', 'label.contact']
+];
 
 // Capa HTML de labels proyectados; las posiciones las escribe LabelProjector (dentro del Canvas).
 export default function WorldLabelLayer() {
   const visible = useNexus((s) => s.arrived && s.tier !== '2d');
   const activate = useNexus.getState().activate;
+  const t = useT();
+  const labels = PROJECT_META.map((p) => ({ id: p.id, code: p.code, name: p.name }))
+    .concat(SECTORS.map(([id, code, key]) => ({ id, code, name: t(key) })));
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden', display: visible ? 'block' : 'none' }}>
-      {LABELS.map((l) => (
+      {labels.map((l) => (
         <button
           key={l.id}
           ref={(el) => {
@@ -24,7 +29,7 @@ export default function WorldLabelLayer() {
           }}
           className="world-label"
           onClick={() => activate(l.id)}
-          aria-label={l.aria}
+          aria-label={t('label.open', { name: l.name })}
         >
           <span style={{ font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.22em', color: '#6fe3ff' }}>{l.code}</span>
           <span style={{ font: '600 11px/1 Oxanium, sans-serif', letterSpacing: '.18em' }}>{l.name}</span>

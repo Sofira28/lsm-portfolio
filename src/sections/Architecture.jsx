@@ -1,5 +1,6 @@
 import { useNexus } from '../store.js';
-import { ARCH } from '../data/projectsData.js';
+import { useContent } from '../data/index.js';
+import { useT } from '../i18n/index.js';
 import { sfx } from '../hooks/useSound.js';
 import { chipBtn, pad2 } from '../utils/styles.js';
 
@@ -11,6 +12,8 @@ export default function Architecture() {
   const archId = useNexus((s) => s.archId);
   const archSel = useNexus((s) => s.archSel);
   const set = useNexus.setState;
+  const { ARCH } = useContent();
+  const t = useT();
   const arch = ARCH.find((a) => a.id === archId) || ARCH[0];
   const select = (k) => set({ archSel: k });
 
@@ -27,11 +30,11 @@ export default function Architecture() {
     if (archSel[0] === 'L' && arch.layers) note = arch.layers[+archSel.slice(1)]?.note || note;
     else if (archSel[0] === 'M' && arch.modules) note = arch.modules[+archSel.slice(1)]?.note || note;
     else if (arch.notes) note = arch.notes[archSel] || note;
-  } else note = note + ' — Haz clic en una capa para inspeccionarla.';
+  } else note = note + t('arch.clickHint');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div role="tablist" aria-label="Sistemas" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+      <div role="tablist" aria-label={t('arch.tabs')} style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {ARCH.map((a) => (
           <button key={a.id} role="tab" aria-selected={a.id === arch.id} onClick={() => { set({ archId: a.id, archSel: null }); sfx('click'); }} style={chipBtn(a.id === arch.id)}>
             {a.tab}
@@ -77,7 +80,7 @@ export default function Architecture() {
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button {...hx.clients}>
-              <span style={caption}>CLIENTS</span>
+              <span style={caption}>{t('arch.clients')}</span>
               <span style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', justifyContent: 'center' }}>
                 {arch.clients.map((i) => <span key={i} style={item({ lineHeight: 1.4 })}>{i}</span>)}
               </span>
@@ -85,24 +88,24 @@ export default function Architecture() {
             <div style={connector} />
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr)', gap: 8, alignItems: 'stretch' }}>
               <button {...hx.inbound}>
-                <span style={{ ...caption, lineHeight: 1.3, letterSpacing: '.2em' }}>INBOUND ADAPTERS</span>
+                <span style={{ ...caption, lineHeight: 1.3, letterSpacing: '.2em' }}>{t('arch.inbound')}</span>
                 {arch.inbound.map((i) => <span key={i} style={item()}>{i}</span>)}
               </button>
               <div style={{ border: '1px dashed rgba(110,160,255,.4)', padding: 12, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'stretch' }}>
-                <span style={{ ...caption, color: '#4d8dff', textAlign: 'center' }}>{arch.ports || 'PORTS'}</span>
+                <span style={{ ...caption, color: '#4d8dff', textAlign: 'center' }}>{t('arch.ports')}</span>
                 <button {...hx.core}>
-                  <span style={{ font: '600 10px/1 Oxanium, sans-serif', letterSpacing: '.24em', color: '#6fe3ff' }}>DOMAIN CORE</span>
+                  <span style={{ font: '600 10px/1 Oxanium, sans-serif', letterSpacing: '.24em', color: '#6fe3ff' }}>{t('arch.core')}</span>
                   {arch.core.map((i) => <span key={i} style={item()}>{i}</span>)}
                 </button>
               </div>
               <button {...hx.outbound}>
-                <span style={{ ...caption, lineHeight: 1.3, letterSpacing: '.2em' }}>OUTBOUND ADAPTERS</span>
+                <span style={{ ...caption, lineHeight: 1.3, letterSpacing: '.2em' }}>{t('arch.outbound')}</span>
                 {arch.outbound.map((i) => <span key={i} style={item()}>{i}</span>)}
               </button>
             </div>
             <div style={connector} />
             <button {...hx.deploy}>
-              <span style={caption}>DEPLOY · QUALITY</span>
+              <span style={caption}>{t('arch.deploy')}</span>
               <span style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', justifyContent: 'center' }}>
                 {arch.deploy.map((i) => <span key={i} style={item({ lineHeight: 1.4 })}>{i}</span>)}
               </span>
@@ -120,9 +123,9 @@ export default function Architecture() {
           </div>
           <div style={connector} />
           <div style={{ border: '1px solid rgba(110,160,255,.3)', padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.24em' }}>
-              <span style={{ color: '#4d8dff' }}>SPRING BOOT · MODULAR MONOLITH</span>
-              <span style={{ color: '#6f82a8' }}>HEXAGONAL PER MODULE</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8, font: '600 9px/1.4 Oxanium, sans-serif', letterSpacing: '.24em' }}>
+              <span style={{ color: '#4d8dff' }}>{t('arch.monolith')}</span>
+              <span style={{ color: '#6f82a8' }}>{t('arch.hexPerModule')}</span>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 8 }}>
               {arch.modules.map((m, k) => (
@@ -140,7 +143,7 @@ export default function Architecture() {
           </div>
           <div style={connector} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 8 }}>
-            {[['PERSISTENCE · CONTRACT', arch.infra], ['TESTING', arch.tests]].map(([t, list]) => (
+            {[[t('arch.persistence'), arch.infra], [t('arch.testing'), arch.tests]].map(([t, list]) => (
               <div key={t} style={{ border: '1px solid rgba(110,160,255,.2)', padding: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <span style={caption}>{t}</span>
                 <span style={{ display: 'flex', flexWrap: 'wrap', gap: '2px 10px' }}>
@@ -153,7 +156,7 @@ export default function Architecture() {
       )}
 
       <div aria-live="polite" style={{ display: 'flex', gap: 12, padding: '12px 14px', background: 'rgba(77,141,255,.07)', border: '1px solid rgba(77,141,255,.3)' }}>
-        <span style={{ font: '600 9px/1.7 Oxanium, sans-serif', letterSpacing: '.24em', color: '#4d8dff', flex: 'none' }}>INSPECTOR</span>
+        <span style={{ font: '600 9px/1.7 Oxanium, sans-serif', letterSpacing: '.24em', color: '#4d8dff', flex: 'none' }}>{t('arch.inspector')}</span>
         <span style={{ font: '400 13px/1.55 Manrope, sans-serif', color: '#d3dcef', textWrap: 'pretty' }}>{note}</span>
       </div>
     </div>

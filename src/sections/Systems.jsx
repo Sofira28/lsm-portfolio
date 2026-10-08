@@ -1,13 +1,16 @@
 import { useNexus } from '../store.js';
-import { PROJECTS, SKILLS } from '../data/projectsData.js';
+import { useContent } from '../data/index.js';
+import { useT } from '../i18n/index.js';
 import { sfx } from '../hooks/useSound.js';
 import { chipBtn, pad2 } from '../utils/styles.js';
 
-// TECHNOLOGY CONSTELLATION — SVG 560×560, 9 hubs en radio 160. Sin porcentajes.
+// Constelación tecnológica — SVG 560×560 (con margen para las etiquetas), 9 hubs en radio 160. Sin porcentajes.
 export default function Systems() {
   const cat = useNexus((s) => s.cat);
   const tech = useNexus((s) => s.tech);
   const openProject = useNexus.getState().openProject;
+  const { PROJECTS, SKILLS } = useContent();
+  const t = useT();
   const set = useNexus.setState;
   const cx = 280, cy = 280;
   const lines = [], dots = [], hubs = [];
@@ -41,9 +44,9 @@ export default function Systems() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <p style={{ margin: 0, font: '400 13.5px/1.55 Manrope, sans-serif', color: '#b3c0da', textWrap: 'pretty' }}>
-        Sin porcentajes: cada tecnología está conectada a los proyectos donde la usé. Selecciona una categoría y luego una tecnología.
+        {t('sys.intro')}
       </p>
-      <svg viewBox="0 0 560 560" role="img" aria-label="Constelación de tecnologías" style={{ width: '100%', maxWidth: 520, alignSelf: 'center', height: 'auto', display: 'block' }}>
+      <svg viewBox="-110 0 780 560" role="img" aria-label={t('sys.aria')} style={{ width: '100%', maxWidth: 520, alignSelf: 'center', height: 'auto', display: 'block' }}>
         {lines.map((l) => <line key={l.k} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} style={l.style} />)}
         {dots.map((d) => <circle key={d.k} cx={d.x} cy={d.y} r={d.r} style={d.style} onClick={d.onClick}><title>{d.name}</title></circle>)}
         <circle cx="280" cy="280" r="26" style={{ fill: '#071230', stroke: '#4d8dff', strokeWidth: 1 }} />
@@ -56,7 +59,7 @@ export default function Systems() {
         ))}
       </svg>
 
-      <div role="tablist" aria-label="Categorías" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+      <div role="tablist" aria-label={t('sys.tabs')} style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {hubs.map((h) => (
           <button key={h.name} role="tab" aria-selected={h.on} onClick={() => pickCat(h.i)} style={chipBtn(h.on)}>{h.name}</button>
         ))}
@@ -65,7 +68,7 @@ export default function Systems() {
       <div style={{ borderTop: '1px solid rgba(110,160,255,.16)', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 }}>
           <span style={{ font: '600 13px/1 Oxanium, sans-serif', letterSpacing: '.24em' }}>{sc.name}</span>
-          <span style={{ font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.2em', color: '#6f82a8' }}>{pad2(sc.techs.length)} NODES</span>
+          <span style={{ font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.2em', color: '#6f82a8' }}>{t('sys.nodes', { n: pad2(sc.techs.length) })}</span>
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {sc.techs.map((t) => (
@@ -81,7 +84,7 @@ export default function Systems() {
         </div>
         {tsel && (
           <div key={tsel[0]} style={{ padding: 12, border: '1px solid rgba(111,227,255,.35)', background: 'rgba(111,227,255,.05)', display: 'flex', flexDirection: 'column', gap: 10, animation: 'nxIn .35s ease both' }}>
-            <span style={{ font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.24em', color: '#6fe3ff' }}>{tsel[0]} · USED IN</span>
+            <span style={{ font: '600 9px/1 Oxanium, sans-serif', letterSpacing: '.24em', color: '#6fe3ff' }}>{t('sys.usedIn', { tech: tsel[0] })}</span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {usedIn.map((p) => (
                 <button key={p.id} className="btn-small" onClick={() => openProject(p.id)}>{p.code} {p.name} →</button>

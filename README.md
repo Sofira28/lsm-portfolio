@@ -37,9 +37,11 @@ Desde el menú lateral (o el dock inferior en móvil), o con las teclas `1`–`6
 - **System**: la cámara orbita sola y navegas desde el menú.
 
 ### Ajustes
-En la barra superior puedes activar el **sonido**, reducir el **movimiento** y cambiar el **perfil de render**:
-- **3D HIGH**: experiencia completa.
-- **3D LITE**: menos efectos, para equipos modestos.
+La página está disponible **en español y en inglés**: usa el botón **ENGLISH / ESPAÑOL** en la pantalla de inicio, en la barra superior o en el menú ⋯ en móvil. Al entrar por primera vez se elige el idioma del navegador, y después se recuerda tu elección.
+
+En la barra superior también puedes activar el **sonido**, reducir el **movimiento** y cambiar el **perfil de render**:
+- **3D ALTO** (3D HIGH): experiencia completa.
+- **3D LIGERO** (3D LITE): menos efectos, para equipos modestos.
 - **2D**: mapa orbital sin 3D.
 
 La página elige el perfil automáticamente según tu equipo y baja de nivel si detecta que va lento.

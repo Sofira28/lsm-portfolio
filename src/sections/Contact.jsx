@@ -1,6 +1,7 @@
 import { useNexus } from '../store.js';
 import { CONFIG } from '../config.js';
-import { PROFILE } from '../data/projectsData.js';
+import { GITHUB_URL } from '../data/index.js';
+import { useT } from '../i18n/index.js';
 
 const stat = (live) => ({
   font: '600 8px/1 Oxanium, sans-serif', letterSpacing: '.18em', padding: '4px 6px',
@@ -9,20 +10,21 @@ const stat = (live) => ({
 
 export default function Contact() {
   const openResume = useNexus.getState().openResume;
+  const t = useT();
   const { emailAddress: email, linkedinUrl: li, resumeUrl: cv } = CONFIG;
   const contacts = [
-    { label: 'GITHUB', value: PROFILE.github.replace(/^https?:\/\//, ''), href: PROFILE.github, live: true },
-    { label: 'EMAIL', value: email || '[ PLACEHOLDER · email ]', href: email ? 'mailto:' + email : '', live: !!email },
-    { label: 'LINKEDIN', value: li ? li.replace(/^https?:\/\/(www\.)?/, '') : '[ PLACEHOLDER · LinkedIn ]', href: li || '', live: !!li },
-    { label: 'CV / RESUME', value: cv ? 'Descargar PDF' : '[ PLACEHOLDER · archivo CV ]', href: cv || '', live: !!cv }
+    { label: 'GITHUB', value: GITHUB_URL.replace(/^https?:\/\//, ''), href: GITHUB_URL, live: true },
+    { label: t('contact.email'), value: email || t('contact.emailPending'), href: email ? 'mailto:' + email : '', live: !!email },
+    { label: 'LINKEDIN', value: li ? li.replace(/^https?:\/\/(www\.)?/, '') : t('contact.linkedinPending'), href: li || '', live: !!li },
+    { label: t('contact.cv'), value: cv ? t('contact.download') : t('contact.cvPending'), href: cv || '', live: !!cv }
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
-        <h2 style={{ margin: 0, font: '600 26px/1.15 Oxanium, sans-serif', letterSpacing: '.14em' }}>ESTABLISH<br />CONNECTION</h2>
+        <h2 style={{ margin: 0, font: '600 26px/1.15 Oxanium, sans-serif', letterSpacing: '.14em' }}>{t('contact.title1')}<br />{t('contact.title2')}</h2>
         <p style={{ margin: '10px 0 0', font: '400 14px/1.55 Manrope, sans-serif', color: '#b3c0da' }}>
-          Prácticas, primer empleo o un proyecto: escríbeme por cualquiera de estos canales.
+          {t('contact.intro')}
         </p>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', borderTop: '1px solid rgba(110,160,255,.16)' }}>
@@ -34,13 +36,13 @@ export default function Contact() {
             ) : (
               <span style={{ font: '500 11.5px/1.4 ui-monospace, Menlo, monospace', color: '#8597ba' }}>{c.value}</span>
             )}
-            <span style={stat(c.live)}>{c.live ? 'ONLINE' : 'PENDING'}</span>
+            <span style={stat(c.live)}>{t(c.live ? 'contact.online' : 'contact.pending')}</span>
           </div>
         ))}
       </div>
-      <button className="btn-primary" onClick={openResume} style={{ minHeight: 48, letterSpacing: '.22em' }}>[ DOWNLOAD RESUME ]</button>
+      <button className="btn-primary" onClick={openResume} style={{ minHeight: 48, letterSpacing: '.22em' }}>{t('contact.button')}</button>
       <div style={{ font: '500 11px/1.5 Manrope, sans-serif', color: '#6f82a8' }}>
-        Los repositorios personales son privados; el perfil de GitHub muestra la actividad pública.
+        {t('contact.note')}
       </div>
     </div>
   );

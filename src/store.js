@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { gsap } from 'gsap';
 import { CONFIG } from './config.js';
-import { PROJECTS } from './data/projectsData.js';
+import { PROJECT_META } from './data/index.js';
+import { t, onLangChange } from './i18n/index.js';
 import { nexus } from './utils/nexus.js';
 import { sfx, setSoundEnabled } from './hooks/useSound.js';
 import { flyTo, focusSector, overview, snapRig } from './animations/flyTo.js';
@@ -15,8 +16,14 @@ export const setProbePromise = (p) => { probePromise = p; };
 function viewport() {
   if (typeof window === 'undefined') return { isMobile: false, compact: false };
   const w = window.innerWidth, h = window.innerHeight;
-  return { isMobile: w < 760 || h < 500, compact: w < 1100 || h < 500 };
+  return { isMobile: w < 760 || h < 500, compact: w < 1240 || h < 500 };
 }
+
+const termWelcome = () => [{ t: 'sys', s: t('term.banner') }, { t: 'out', s: t('term.welcome') }];
+
+// Al cambiar de idioma: la terminal empieza de nuevo y se limpia la selección de tecnología
+// (los nombres de algunas tecnologías cambian entre idiomas).
+onLangChange(() => useNexus.setState({ term: termWelcome(), tech: null }));
 
 export const useNexus = create((set, get) => ({
   phase: 'boot', // boot | world
@@ -37,13 +44,10 @@ export const useNexus = create((set, get) => ({
   tech: null,
   archId: 'overview',
   archSel: null,
-  term: [
-    { t: 'sys', s: 'LSM // LAB TERMINAL v1.0' },
-    { t: 'out', s: 'Escribe "help" para ver los comandos.' }
-  ],
+  term: termWelcome(),
   secret: false,
-  secretMsg: '',
-  toast: null,
+  secretMsg: '', // clave de i18n
+  toast: null, // clave de i18n
   settings: false,
 
   // ---------- enter ----------
@@ -80,7 +84,7 @@ export const useNexus = create((set, get) => ({
     sfx('activate');
     flyTo(pid, pid === 'simav' ? 14 : 11, 0.32);
     nexus.selected = pid;
-    const p = PROJECTS.find((x) => x.id === pid);
+    const p = PROJECT_META.find((x) => x.id === pid);
     if (p) nexus.coreGoal = p.color;
   },
   openArch(archId) {
@@ -133,7 +137,7 @@ export const useNexus = create((set, get) => ({
 
   openResume() {
     if (CONFIG.resumeUrl) window.open(CONFIG.resumeUrl, '_blank', 'noopener');
-    else get().showToast('CV PENDIENTE · ARCHIVO AÚN NO VINCULADO');
+    else get().showToast('toast.cvPending');
     sfx('click');
   },
   showToast(msg) {
