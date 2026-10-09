@@ -4,7 +4,7 @@ export const CONFIG = {
   skipBoot: false,
   forceReducedMotion: false,
   showFps: true,
-  resumeUrl: '', // p. ej. '/cv-linda-sofia-moreno.pdf' (colócalo en /public)
+  resumeUrl: '/CV.pdf', // archivo en /public
   emailAddress: '',
   linkedinUrl: '',
   avatarUrl: '/models/SofiaAvatarSALUDO.glb' // vacío = avatar holográfico de respaldo
